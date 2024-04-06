@@ -1,6 +1,7 @@
 "use client";
 
 import { getOverview } from "@/api/transaction.api";
+import { StackedBarChart } from "@/components/charts";
 import {
   Button,
   Card,
@@ -153,7 +154,84 @@ export default function Dashboard() {
                     <CardTitle>Overview</CardTitle>
                   </CardHeader>
                   <CardContent className="pl-2">
-                    {/* <Overview /> */}
+                    <StackedBarChart
+                      data={[
+                        {
+                          name: "Jan",
+                          saved: 4000,
+                          expense: 2400,
+                          investment: 2400,
+                        },
+                        {
+                          name: "Feb",
+                          saved: 3000,
+                          expense: 1398,
+                          investment: 2210,
+                        },
+                        {
+                          name: "Mar",
+                          saved: 2000,
+                          expense: 9800,
+                          investment: 2290,
+                        },
+                        {
+                          name: "Apr",
+                          saved: 2780,
+                          expense: 3908,
+                          investment: 2000,
+                        },
+                        {
+                          name: "May",
+                          saved: 1890,
+                          expense: 4800,
+                          investment: 2181,
+                        },
+                        {
+                          name: "Jun",
+                          saved: 2390,
+                          expense: 3800,
+                          investment: 2500,
+                        },
+                        {
+                          name: "Jul",
+                          saved: 3490,
+                          expense: 4300,
+                          investment: 2100,
+                        },
+                        {
+                          name: "Aug",
+                          saved: 3490,
+                          expense: 4300,
+                          investment: 2100,
+                        },
+                        {
+                          name: "Sep",
+                          saved: 3490,
+                          expense: 4300,
+                          investment: 2100,
+                        },
+                        {
+                          name: "Oct",
+                          saved: 3490,
+                          expense: 4300,
+                          investment: 2100,
+                        },
+                        {
+                          name: "Nov",
+                          saved: 3490,
+                          expense: 4300,
+                          investment: 2100,
+                        },
+                        {
+                          name: "Dec",
+                          saved: 3490,
+                          expense: 4300,
+                          investment: 2100,
+                        }
+                      ]}
+                      categories={["expense", "investment", "saved"]}
+                      colors={["#8884d8", "#82ca9d", "#ffc658"]}
+                    />
                   </CardContent>
                 </Card>
                 <Card className="col-span-3">

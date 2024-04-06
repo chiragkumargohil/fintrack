@@ -1,3 +1,5 @@
+import { formatNumberInIndianStyle } from "@/lib/utils";
+
 async function getTransactions(): Promise<Transaction[]> {
   // get from local storage
   const transactions = localStorage.getItem("transactions");
@@ -43,16 +45,16 @@ async function getOverview() {
   const lastTransactions = transactions.map((transaction) => {
     return {
       id: transaction.id,
-      amount: `₹${transaction.amount}`,
+      amount: `₹${formatNumberInIndianStyle(transaction.amount)}`,
       date: new Date(transaction.date).toDateString(),
       type: transaction.type,
     };
   });
 
   return {
-    totalIncome,
-    totalExpense,
-    totalInvestment,
+    totalIncome: formatNumberInIndianStyle(totalIncome),
+    totalExpense: formatNumberInIndianStyle(totalExpense),
+    totalInvestment: formatNumberInIndianStyle(totalInvestment),
     transactions: lastTransactions.slice(0, 5),
   };
 }
