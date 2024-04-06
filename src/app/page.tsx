@@ -84,14 +84,14 @@ export default function Dashboard() {
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <OverviewCard
                   title="Total income"
-                  value={data.totalIncome || "₹0"}
+                  value={`₹${data.totalIncome || 0}`}
                   icon={
                     <span className="text-sm text-muted-foreground">₹</span>
                   }
                 />
                 <OverviewCard
                   title="Total expense"
-                  value={data.totalExpense || "₹0"}
+                  value={`₹${data.totalExpense || 0}`}
                   icon={
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -111,7 +111,7 @@ export default function Dashboard() {
                 />
                 <OverviewCard
                   title="Total investment"
-                  value={data.totalInvestment || "₹0"}
+                  value={`₹${data.totalInvestment || 0}`}
                   icon={
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -127,10 +127,10 @@ export default function Dashboard() {
                       <path d="M2 10h20" />
                     </svg>
                   }
-                  helpText="+19% from last month"
                 />
                 <OverviewCard
-                  title="Expense"
+                  title="Physical wallet"
+                  value={`₹${data.physicalWallet || 0}`}
                   icon={
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -145,7 +145,6 @@ export default function Dashboard() {
                       <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
                     </svg>
                   }
-                  value="24%"
                 />
               </div>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
@@ -164,21 +163,13 @@ export default function Dashboard() {
                   <CardContent>
                     <DataGrid
                       columns={[
-                        { label: "Customer", field: "customer", className: "" },
                         {
                           label: "Type",
                           field: "type",
-                          className: "hidden xl:table-column",
-                        },
-                        {
-                          label: "Status",
-                          field: "status",
-                          className: "hidden xl:table-column",
                         },
                         {
                           label: "Date",
                           field: "date",
-                          className: "hidden xl:table-column",
                         },
                         {
                           label: "Amount",
@@ -186,43 +177,7 @@ export default function Dashboard() {
                           className: "text-right",
                         },
                       ]}
-                      rows={[
-                        {
-                          customer: "Liam Johnson",
-                          type: "Sale",
-                          status: "Approved",
-                          date: "2023-06-23",
-                          amount: "$250.00",
-                        },
-                        {
-                          customer: "Olivia Smith",
-                          type: "Refund",
-                          status: "Declined",
-                          date: "2023-06-24",
-                          amount: "$150.00",
-                        },
-                        {
-                          customer: "Noah Williams",
-                          type: "Subscription",
-                          status: "Approved",
-                          date: "2023-06-25",
-                          amount: "$350.00",
-                        },
-                        {
-                          customer: "Emma Brown",
-                          type: "Sale",
-                          status: "Approved",
-                          date: "2023-06-26",
-                          amount: "$450.00",
-                        },
-                        {
-                          customer: "Liam Johnson",
-                          type: "Sale",
-                          status: "Approved",
-                          date: "2023-06-27",
-                          amount: "$550.00",
-                        },
-                      ]}
+                      rows={data.transactions || []}
                     />
                   </CardContent>
                 </Card>

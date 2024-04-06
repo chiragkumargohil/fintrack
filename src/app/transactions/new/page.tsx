@@ -31,12 +31,13 @@ const PAYMENT_METHODS = [
 const TRANSACTION_TYPES = [
   { value: "INCOME", label: "Income" },
   { value: "EXPENSE", label: "Expense" },
+  { value: "INVESTMENT", label: "Investment" },
 ];
 
 export default function NewTransaction() {
   const router = useRouter();
 
-  const [form, setForm] = useState({} as Record<string, string>);
+  const [form, setForm] = useState({} as Transaction);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -47,11 +48,15 @@ export default function NewTransaction() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const newTransaction = await createTransaction(form);
+    const newTransaction = await createTransaction({
+      ...form,
+      amount: Number(form.amount),
+      date: new Date(form.date),
+    });
 
     if (newTransaction) {
       toast.success("Transaction added successfully");
-      setForm({});
+      setForm({} as Transaction);
       router.push("/");
     }
   };
@@ -68,7 +73,7 @@ export default function NewTransaction() {
               <Label htmlFor="type">Transaction type</Label>
               <Select
                 onValueChange={(value) =>
-                  setForm((prev) => ({ ...prev, type: value }))
+                  setForm((prev) => ({ ...prev, type: value as PaymentType }))
                 }
               >
                 <SelectTrigger id="type" className="w-full" name="type">
@@ -116,7 +121,7 @@ export default function NewTransaction() {
                 name="date"
                 className="w-full"
                 placeholder="Enter date"
-                value={form.date}
+                value={form.date as string}
                 onChange={handleChange}
               />
             </div>
@@ -144,14 +149,14 @@ export default function NewTransaction() {
               </Select>
             </div>
             <div className="grid gap-3">
-              <Label htmlFor="counterPartyName">Counter party name</Label>
+              <Label htmlFor="counterParty">Counter party name</Label>
               <Input
-                id="counterPartyName"
+                id="counterParty"
                 type="text"
-                name="counterPartyName"
+                name="counterParty"
                 className="w-full"
                 placeholder="Enter counter party name (optional)"
-                value={form.counterPartyName}
+                value={form.counterParty}
                 onChange={handleChange}
               />
             </div>
