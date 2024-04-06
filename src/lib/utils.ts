@@ -23,3 +23,8 @@ export function formatNumberInIndianStyle(number: number) {
   // Replace the number with the Indian style formatting
   return `${integerPart},${decimalPart}`;
 }
+
+export function getMonthName(dateString: string) {
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat("en", { month: "short" }).format(date);
+}
