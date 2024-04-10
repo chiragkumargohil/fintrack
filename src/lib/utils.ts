@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import bcrypt from "bcryptjs";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -27,4 +28,44 @@ export function formatNumberInIndianStyle(number: number) {
 export function getMonthName(dateString: string) {
   const date = new Date(dateString);
   return new Intl.DateTimeFormat("en", { month: "short" }).format(date);
+}
+
+export async function hashPassword(password: string) {
+  const salt = await bcrypt.genSalt(10);
+  const pass = await bcrypt.hash(password, salt);
+  return pass;
+}
+
+/**
+ * @function validateEmail
+ * @description Validates an email address
+ * @param {string} email
+ * @returns {boolean}
+ */
+export function validateEmail(email: string): boolean {
+  const re = /\S+@\S+\.\S+/;
+  return re.test(email);
+}
+
+/**
+ * @function validatePassword
+ * @description Validates a password
+ * @param {string} password
+ * @returns {boolean}
+ */
+export function validatePassword(password: string): boolean {
+  return password.length >= 8;
+}
+
+/**
+ * @function isStrongPassword
+ * @description Checks if a password is strong
+ * @param {string} password
+ * @returns {boolean}
+ */
+export function isStrongPassword(password: string): boolean {
+  // Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character, space not allowed.
+  const re =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/;
+  return re.test(password);
 }

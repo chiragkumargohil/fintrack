@@ -26,7 +26,7 @@ export const StackedBarChart: React.FC<StackedBarChartProps> = ({
   yAxisLabel,
 }) => {
   return (
-    <ResponsiveContainer width="100%" height={400}>
+    <ResponsiveContainer width="100%" height={350}>
       <BarChart data={data}>
         <XAxis
           dataKey="name"
@@ -35,6 +35,7 @@ export const StackedBarChart: React.FC<StackedBarChartProps> = ({
             position: "insideBottomRight",
             offset: -10,
           }}
+          style={{ fontSize: 12 }}
         />
         <YAxis
           label={{
@@ -43,6 +44,7 @@ export const StackedBarChart: React.FC<StackedBarChartProps> = ({
             position: "insideLeft",
             offset: -10,
           }}
+          style={{ fontSize: 12 }}
         />
         <CartesianGrid strokeDasharray="3 3" />
         <Tooltip />

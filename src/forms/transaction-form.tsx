@@ -11,39 +11,19 @@ import {
   SelectValue,
   Textarea,
 } from "@/components/ui";
-import { getTransaction } from "@/api/transaction.api";
-
-const PAYMENT_METHODS = [
-  { value: "UPI", label: "UPI" },
-  { value: "CASH", label: "Cash" },
-  { value: "DEBIT_CARD", label: "Debit card" },
-  { value: "CREDIT_CARD", label: "Credit card" },
-  { value: "NET_BANKING", label: "Net banking" },
-  { value: "OTHERS", label: "Others" },
-];
-
-const TRANSACTION_TYPES = [
-  { value: "INCOME", label: "Income" },
-  { value: "EXPENSE", label: "Expense" },
-  { value: "INVESTMENT", label: "Investment" },
-];
+import { getCategories, getTransaction } from "@/api/transaction.api";
+import { PAYMENT_MODE } from "@/constants";
+import Link from "next/link";
 
 export default function TransactionForm({
   id,
   handleSubmit,
 }: {
   id?: string;
-  handleSubmit: (data: Transaction) => void;
+  handleSubmit: (data: FormData) => void;
 }) {
-  const [form, setForm] = useState<Transaction>({
-    type: "" as PaymentType,
-    title: "",
-    amount: 0,
-    date: "",
-    mode: "" as PaymentMode,
-    counterParty: "",
-    remarks: "",
-  } as Transaction);
+  const [form, setForm] = useState<Transaction>({} as Transaction);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -52,57 +32,63 @@ export default function TransactionForm({
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    handleSubmit({
-      ...form,
-      amount: Number(form.amount),
-      date: new Date(form.date),
-    } as Transaction);
-  };
-
   useEffect(() => {
     if (id) {
       const fetchTransaction = async () => {
         // Fetch transaction
-        const response = await getTransaction(id);
+        const response = await getTransaction(Number(id));
         setForm(response);
       };
 
       fetchTransaction();
     }
 
+    const fetchCategories = async () => {
+      // Fetch categories
+      const response = await getCategories();
+      setCategories(response);
+    };
+
+    fetchCategories();
+
     return () => {
-      setForm({
-        type: "" as PaymentType,
-        title: "",
-        amount: 0,
-        date: "",
-        mode: "" as PaymentMode,
-        counterParty: "",
-        remarks: "",
-      } as Transaction);
+      setForm({} as Transaction);
     };
   }, [id]);
+
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("categoryId", String(form.categoryId));
+    formData.append("title", form.title || "");
+    formData.append("amount", String(form.amount));
+    formData.append("date", form.date as string);
+    formData.append("mode", form.mode);
+    formData.append("payee", form.payee || "");
+    formData.append("remarks", form.remarks || "");
+    handleSubmit(formData);
+  };
 
   return (
     <form className="grid gap-6" onSubmit={handleFormSubmit}>
       <div className="grid gap-3">
-        <Label htmlFor="type">Transaction type</Label>
+        <Label htmlFor="categoryId">Transaction type</Label>
         <Select
           onValueChange={(value) =>
-            setForm((prev) => ({ ...prev, type: value as PaymentType }))
+            setForm((prev) => ({
+              ...prev,
+              categoryId: Number(value),
+            }))
           }
-          value={form.type}
+          value={String(form.categoryId)}
         >
-          <SelectTrigger id="type" className="w-full" name="type">
+          <SelectTrigger id="categoryId" className="w-full" name="categoryId">
             <SelectValue placeholder="Select transaction type" />
           </SelectTrigger>
           <SelectContent>
-            {TRANSACTION_TYPES.map((type) => (
-              <SelectItem key={type.value} value={type.value}>
-                {type.label}
+            {categories.map((category) => (
+              <SelectItem key={category.id} value={String(category.id)}>
+                {category.name}
               </SelectItem>
             ))}
           </SelectContent>
@@ -116,7 +102,7 @@ export default function TransactionForm({
           name="title"
           className="w-full"
           placeholder="Enter title (optional)"
-          value={form.title}
+          value={form.title || ""}
           onChange={handleChange}
         />
       </div>
@@ -131,6 +117,7 @@ export default function TransactionForm({
           placeholder="Enter amount"
           value={form.amount}
           onChange={handleChange}
+          required
         />
       </div>
       <div className="grid gap-3">
@@ -141,8 +128,11 @@ export default function TransactionForm({
           name="date"
           className="w-full"
           placeholder="Enter date"
-          value={form.date ? new Date(form.date).toISOString().split("T")[0] : ""}
+          value={
+            form.date ? new Date(form.date).toISOString().split("T")[0] : ""
+          }
           onChange={handleChange}
+          required
         />
       </div>
       <div className="grid gap-3">
@@ -152,28 +142,29 @@ export default function TransactionForm({
             setForm((prev) => ({ ...prev, mode: value as PaymentMode }))
           }
           value={form.mode}
+          required
         >
           <SelectTrigger id="mode" className="w-full" name="mode">
             <SelectValue placeholder="Select payment method" />
           </SelectTrigger>
           <SelectContent>
-            {PAYMENT_METHODS.map((method) => (
-              <SelectItem key={method.value} value={method.value}>
-                {method.label}
+            {Object.keys(PAYMENT_MODE).map((mode) => (
+              <SelectItem key={mode} value={mode}>
+                {PAYMENT_MODE[mode]}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
       <div className="grid gap-3">
-        <Label htmlFor="counterParty">Counter party name</Label>
+        <Label htmlFor="payee">Counter party name</Label>
         <Input
-          id="counterParty"
+          id="payee"
           type="text"
-          name="counterParty"
+          name="payee"
           className="w-full"
           placeholder="Enter counter party name (optional)"
-          value={form.counterParty}
+          value={form.payee || ""}
           onChange={handleChange}
         />
       </div>
@@ -184,11 +175,18 @@ export default function TransactionForm({
           name="remarks"
           className="min-h-32"
           placeholder="Enter remarks (optional)"
-          value={form.remarks}
+          value={form.remarks || ""}
           onChange={handleChange}
         />
       </div>
-      <Button className="w-full">{id ? "Update" : "Add"} transaction</Button>
+      <div className="grid gap-3">
+        <Button className="w-full">{id ? "Update" : "Add"} transaction</Button>
+        <Link href="/">
+          <Button className="w-full" variant="ghost">
+            Cancel
+          </Button>
+        </Link>
+      </div>
     </form>
   );
 }

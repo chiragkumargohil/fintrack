@@ -1,5 +1,3 @@
-"use client";
-
 import { getOverview } from "@/api/transaction.api";
 import {
   Button,
@@ -9,40 +7,35 @@ import {
   TabsTrigger,
 } from "@/components/ui";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import Overview from "./dashboard/overview";
 import Transactions from "./dashboard/transactions";
+import { Plus } from "lucide-react";
+import { Navbar } from "@/components/navbar";
 
-export default function Dashboard() {
-  const [data, setData] = useState({} as any);
+export default async function Dashboard() {
+  const { data, error } = await getOverview();
 
-  useEffect(() => {
-    const fetchTransactions = async () => {
-      // Fetch transactions
-      const response = await getOverview();
-      setData(response);
-    };
-
-    fetchTransactions();
-
-    return () => {
-      setData({});
-    };
-  }, []);
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        "Something went wrong!"
+      </div>
+    );
+  }
 
   return (
     <>
       <div className="flex-col md:flex">
         <div className="flex-1 space-y-4 p-8 pt-6">
           <div className="flex items-center justify-between space-y-2">
-            <h2 className="text-3xl font-bold tracking-tight">
-              Hey, Chirag!
-            </h2>
+            <h2 className="text-3xl font-bold tracking-tight">Hey, Chirag!</h2>
             <div className="flex items-center gap-4">
-              <Link href="/transactions/new" className="text-sm">
-                New transaction
+              <Link href="/transactions/new">
+                <Button className="flex items-center gap-2">
+                  <Plus size={16} strokeWidth={3} />
+                  New transaction
+                </Button>
               </Link>
-              <Button>Download</Button>
             </div>
           </div>
           <Tabs defaultValue="overview" className="space-y-4">
@@ -59,6 +52,8 @@ export default function Dashboard() {
           </Tabs>
         </div>
       </div>
+
+      <Navbar />
     </>
   );
 }

@@ -1,0 +1,61 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  email        String        @unique
+  firstName    String?
+  middleName   String?
+  lastName     String?
+  password     String?
+  location     String?
+  provider     String?       @default("email")
+  providerId   String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @default(now()) @updatedAt
+  transactions Transaction[]
+  categories   Category[]
+}
+
+model Transaction {
+  id         Int         @id @default(autoincrement())
+  title      String?
+  amount     Float       @default(0)
+  date       DateTime
+  categoryId Int
+  mode       PaymentMode
+  location   String?
+  payee      String?
+  remarks    String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @default(now()) @updatedAt
+  userId     Int
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category   Category    @relation(fields: [categoryId], references: [id])
+}
+
+model Category {
+  id           Int           @id @default(autoincrement())
+  name         String
+  userId       Int?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @default(now()) @updatedAt
+  transactions Transaction[]
+  user         User?         @relation(fields: [userId], references: [id])
+}
+
+enum PaymentMode {
+  CASH
+  UPI
+  CREDIT_CARD
+  DEBIT_CARD
+  NET_BANKING
+  OTHERS
+}

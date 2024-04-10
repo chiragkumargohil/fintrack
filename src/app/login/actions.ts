@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/superbase/server";
+import { createUser } from "@/api/user.api";
 
 export async function login(formData: FormData) {
   const supabase = createClient();
@@ -31,17 +32,27 @@ export async function signup(formData: FormData) {
 
   // type-casting here for convenience
   // in practice, you should validate your inputs
-  const data = {
+  const userData = {
     email: formData.get("email") as string,
     password: formData.get("password") as string,
   };
 
-  console.log(data);
+  // const data = await prisma.
 
-  const { error } = await supabase.auth.signUp(data);
+  const { data, error } = await supabase.auth.signUp(userData);
 
   if (error) {
-    console.error(error);
+    redirect("/error");
+  }
+
+  const user = await createUser({
+    email: userData.email,
+    password: userData.password,
+    provider: "email",
+    providerId: data?.user?.id || null,
+  } as User);
+
+  if (!user) {
     redirect("/error");
   }
 

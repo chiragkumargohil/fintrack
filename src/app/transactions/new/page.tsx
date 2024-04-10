@@ -1,33 +1,28 @@
-"use client";
-
-import { createTransaction } from "@/api/transaction.api";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui";
 import TransactionForm from "@/forms/transaction-form";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import Link from "next/link";
+import { create } from "./actions";
 
 export default function NewTransaction() {
-  const router = useRouter();
-
-  const handleSubmit = async (data: Transaction) => {
-    const newTransaction = await createTransaction(data);
-
-    if (newTransaction) {
-      toast.success("Transaction added successfully");
-      router.push("/");
-    }
-  };
-
   return (
-    <>
-      <Card className="max-w-2xl mx-auto my-8">
-        <CardHeader>
-          <CardTitle>New transaction</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <TransactionForm handleSubmit={handleSubmit} />
-        </CardContent>
-      </Card>
-    </>
+    <Card className="max-w-2xl mx-4 md:mx-auto my-4">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>New transaction</CardTitle>
+        <Link href="/">
+          <Button className="w-full" variant="ghost">
+            Cancel
+          </Button>
+        </Link>
+      </CardHeader>
+      <CardContent>
+        <TransactionForm handleSubmit={create} />
+      </CardContent>
+    </Card>
   );
 }

@@ -1,71 +1,37 @@
-import { formatNumberInIndianStyle, getMonthName } from "@/lib/utils";
-
-function formatData(jsonData: string) {
-  const data = JSON.parse(jsonData);
-
-  // Initialize an object to store data for each month
-  const monthlyData: Record<string, any> = {};
-
-  // Loop through each transaction
-  data.forEach((transaction: Transaction) => {
-    const month = getMonthName(transaction.date as string);
-
-    // If the month entry doesn't exist, create it
-    if (!monthlyData[month]) {
-      monthlyData[month] = {
-        name: month,
-        saved: 0,
-        expense: 0,
-        investment: 0,
-      };
-    }
-
-    // Categorize the transaction based on type
-    if (transaction.type === "INCOME") {
-      monthlyData[month].saved += transaction.amount;
-    } else if (transaction.type === "EXPENSE") {
-      monthlyData[month].expense += transaction.amount;
-    } else if (transaction.type === "INVESTMENT") {
-      monthlyData[month].investment += transaction.amount;
-    }
-  });
-
-  // Calculate saved amount for each month
-  for (const month in monthlyData) {
-    monthlyData[month].saved -=
-      monthlyData[month].expense + monthlyData[month].investment;
-  }
-
-  // Convert monthlyData object to array
-  const formattedData = Object.values(monthlyData);
-
-  const myData = [];
-
-  // add missing months
-  for (let i = 0; i < 11; i++) {
-    const month = getMonthName(new Date(new Date().setMonth(i)).toDateString());
-    if (!formattedData.find((data) => data.name === month)) {
-      myData.push({
-        name: month,
-        saved: 0,
-        expense: 0,
-        investment: 0,
-      });
-    } else {
-      myData.push(formattedData.find((data) => data.name === month));
-    }
-  }
-
-  return myData;
-}
+import prisma from "@/lib/prisma";
+import { createClient } from "@/lib/superbase/client";
+const supabase = createClient();
 
 async function getTransactions(): Promise<Transaction[]> {
-  // get from local storage
-  const transactions = localStorage.getItem("transactions");
-  return transactions ? JSON.parse(transactions) : [];
+  try {
+    const transactions = await prisma.transaction.findMany({
+      include: {
+        user: true,
+        category: true,
+      },
+    });
+
+    return transactions.map((transaction) => {
+      return {
+        id: transaction.id,
+        title: transaction.title,
+        amount: transaction.amount,
+        date: transaction.date,
+        categoryId: transaction.categoryId,
+        mode: transaction.mode,
+        location: transaction.location,
+        payee: transaction.payee,
+        remarks: transaction.remarks,
+        createdAt: transaction.createdAt,
+        updatedAt: transaction.updatedAt,
+      };
+    }) as Transaction[];
+  } catch (error) {
+    throw new Error(error as string);
+  }
 }
 
-async function getTransaction(id: string): Promise<Transaction> {
+async function getTransaction(id: number): Promise<Transaction> {
   const transactions = await getTransactions();
   return (
     transactions.find((transaction) => transaction.id === id) ||
@@ -74,13 +40,46 @@ async function getTransaction(id: string): Promise<Transaction> {
 }
 
 async function createTransaction(data: Transaction) {
-  // add to local storage
-  const transactions = await getTransactions();
-  data.id = new Date().getTime().toString();
-  transactions.push(data);
+  try {
+    const transaction = await prisma.transaction.create({
+      data: {
+        title: data.title,
+        amount: data.amount,
+        date: new Date(data.date),
+        mode: data.mode,
+        location: data.location,
+        payee: data.payee,
+        remarks: data.remarks,
+        user: {
+          connect: {
+            email: data.email,
+          },
+        },
+        category: {
+          connect: {
+            id: data.categoryId,
+          },
+        },
+      },
+    });
 
-  localStorage.setItem("transactions", JSON.stringify(transactions));
-  return data || [];
+    return {
+      data: {
+        id: transaction.id,
+        title: transaction.title,
+        amount: transaction.amount,
+        date: transaction.date,
+        categoryId: transaction.categoryId,
+        mode: transaction.mode,
+        location: transaction.location,
+        payee: transaction.payee,
+        remarks: transaction.remarks,
+        createdAt: transaction.createdAt,
+      } as Transaction,
+    };
+  } catch (error) {
+    return { error: error as string };
+  }
 }
 
 async function updateTransaction(data: Transaction) {
@@ -96,51 +95,122 @@ async function updateTransaction(data: Transaction) {
 }
 
 async function getOverview() {
-  const transactions = await getTransactions();
-  const income = transactions.filter(
-    (transaction) => transaction.type === "INCOME"
-  );
-  const expense = transactions.filter(
-    (transaction) => transaction.type === "EXPENSE"
-  );
-  const investment = transactions.filter(
-    (transaction) => transaction.type === "INVESTMENT"
-  );
-  const totalIncome = income.reduce(
-    (acc, transaction) => acc + Number(transaction.amount),
-    0
-  );
-  const totalExpense = expense.reduce(
-    (acc, transaction) => acc + Number(transaction.amount),
-    0
-  );
-  const totalInvestment = investment.reduce(
-    (acc, transaction) => acc + Number(transaction.amount),
-    0
-  );
+  try {
+    const currentMonthStart = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      1
+    );
+    const currentMonthEnd = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth() + 1,
+      0
+    );
 
-  const transactionTrend = formatData(JSON.stringify(transactions));
+    const promises: any = [];
+    promises.push(prisma.transaction.aggregate({
+      where: {
+        date: {
+          gte: currentMonthStart,
+          lte: currentMonthEnd,
+        },
+        amount: {
+          gt: 0,
+        },
+        category: {
+          name: {
+            in: ["Income"],
+          },
+        },
+      },
+      _sum: {
+        amount: true,
+      },
+    }));
 
-  transactions.sort((a, b) => {
-    return new Date(b.date).getTime() - new Date(a.date).getTime();
-  });
-  const lastTransactions = transactions.map((transaction) => {
+    promises.push(prisma.transaction.aggregate({
+      where: {
+        date: {
+          gte: currentMonthStart,
+          lte: currentMonthEnd,
+        },
+        amount: {
+          gt: 0,
+        },
+        category: {
+          name: {
+            in: ["Investment"],
+          },
+        },
+      },
+      _sum: {
+        amount: true,
+      },
+    }));
+
+    promises.push(prisma.transaction.aggregate({
+      where: {
+        date: {
+          gte: currentMonthStart,
+          lte: currentMonthEnd,
+        },
+        amount: {
+          gt: 0,
+        },
+        category: {
+          name: {
+            notIn: ["Investment", "Income"],
+          },
+        },
+      },
+      _sum: {
+        amount: true,
+      },
+    }));
+
+    promises.push(prisma.transaction.findMany({
+      where: {
+        date: {
+          gte: currentMonthStart,
+          lte: currentMonthEnd,
+        },
+      },
+      include: {
+        category: true,
+      },
+    }));
+
+    const responses = await prisma.$transaction(promises);
+
     return {
-      id: transaction.id,
-      amount: `₹${formatNumberInIndianStyle(transaction.amount)}`,
-      date: new Date(transaction.date).toDateString(),
-      type: transaction.type,
+      data: {
+        totalIncome: responses[0]._sum.amount || 0,
+        totalExpense: responses[2]._sum.amount || 0,
+        totalInvestment: responses[1]._sum.amount || 0,
+        transactions: [],
+        transactionTrend: [],
+      },
     };
-  });
-
-  return {
-    totalIncome: formatNumberInIndianStyle(totalIncome),
-    totalExpense: formatNumberInIndianStyle(totalExpense),
-    totalInvestment: formatNumberInIndianStyle(totalInvestment),
-    transactions: lastTransactions.slice(0, 5),
-    transactionTrend,
-  };
+  } catch (error) {
+    return { error: error as string };
+  }
 }
+
+const getCategories = async (): Promise<Category[]> => {
+  try {
+    const response = await supabase.from("Category").select("*");
+    const categories = response.data;
+
+    return (categories || []).map((category: any) => {
+      return {
+        id: category.id,
+        name: category.name,
+      };
+    }) as Category[];
+  } catch (error) {
+    throw new Error(error as string);
+  }
+};
 
 export {
   getTransactions,
@@ -148,4 +218,5 @@ export {
   createTransaction,
   updateTransaction,
   getOverview,
+  getCategories,
 };
