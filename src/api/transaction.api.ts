@@ -108,77 +108,85 @@ async function getOverview() {
     );
 
     const promises: any = [];
-    promises.push(prisma.transaction.aggregate({
-      where: {
-        date: {
-          gte: currentMonthStart,
-          lte: currentMonthEnd,
-        },
-        amount: {
-          gt: 0,
-        },
-        category: {
-          name: {
-            in: ["Income"],
+    promises.push(
+      prisma.transaction.aggregate({
+        where: {
+          date: {
+            gte: currentMonthStart,
+            lte: currentMonthEnd,
+          },
+          amount: {
+            gt: 0,
+          },
+          category: {
+            name: {
+              in: ["Income"],
+            },
           },
         },
-      },
-      _sum: {
-        amount: true,
-      },
-    }));
+        _sum: {
+          amount: true,
+        },
+      })
+    );
 
-    promises.push(prisma.transaction.aggregate({
-      where: {
-        date: {
-          gte: currentMonthStart,
-          lte: currentMonthEnd,
-        },
-        amount: {
-          gt: 0,
-        },
-        category: {
-          name: {
-            in: ["Investment"],
+    promises.push(
+      prisma.transaction.aggregate({
+        where: {
+          date: {
+            gte: currentMonthStart,
+            lte: currentMonthEnd,
+          },
+          amount: {
+            gt: 0,
+          },
+          category: {
+            name: {
+              in: ["Investment"],
+            },
           },
         },
-      },
-      _sum: {
-        amount: true,
-      },
-    }));
+        _sum: {
+          amount: true,
+        },
+      })
+    );
 
-    promises.push(prisma.transaction.aggregate({
-      where: {
-        date: {
-          gte: currentMonthStart,
-          lte: currentMonthEnd,
-        },
-        amount: {
-          gt: 0,
-        },
-        category: {
-          name: {
-            notIn: ["Investment", "Income"],
+    promises.push(
+      prisma.transaction.aggregate({
+        where: {
+          date: {
+            gte: currentMonthStart,
+            lte: currentMonthEnd,
+          },
+          amount: {
+            gt: 0,
+          },
+          category: {
+            name: {
+              notIn: ["Investment", "Income"],
+            },
           },
         },
-      },
-      _sum: {
-        amount: true,
-      },
-    }));
-
-    promises.push(prisma.transaction.findMany({
-      where: {
-        date: {
-          gte: currentMonthStart,
-          lte: currentMonthEnd,
+        _sum: {
+          amount: true,
         },
-      },
-      include: {
-        category: true,
-      },
-    }));
+      })
+    );
+
+    promises.push(
+      prisma.transaction.findMany({
+        where: {
+          date: {
+            gte: currentMonthStart,
+            lte: currentMonthEnd,
+          },
+        },
+        include: {
+          category: true,
+        },
+      })
+    );
 
     const responses = await prisma.$transaction(promises);
 
@@ -208,7 +216,8 @@ const getCategories = async (): Promise<Category[]> => {
       };
     }) as Category[];
   } catch (error) {
-    throw new Error(error as string);
+    console.error(error);
+    return [];
   }
 };
 

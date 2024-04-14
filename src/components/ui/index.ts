@@ -63,3 +63,12 @@ export {
   CommandSeparator,
   CommandShortcut,
 } from "@/components/ui/command";
+export {
+  Form,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormDescription,
+  FormMessage,
+  FormField,
+} from "@/components/ui/form";

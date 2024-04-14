@@ -4,58 +4,33 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/superbase/server";
-import { createUser } from "@/api/user.api";
+import { LoginSchema } from "@/lib/schema";
 
 export async function login(formData: FormData) {
   const supabase = createClient();
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  const data = {
+  // VALIDATE: Validate the form data
+  const parsedData = LoginSchema.safeParse({
     email: formData.get("email") as string,
     password: formData.get("password") as string,
-  };
+  });
 
-  const { error } = await supabase.auth.signInWithPassword(data);
+  // CHECK: Check for parsing errors
+  if (!parsedData.success) {
+    console.error(parsedData.error);
+    return { error: "Invalid email or password" };
+  }
 
+  // AUTH: Login user
+  const { error } = await supabase.auth.signInWithPassword(parsedData.data);
+
+  // CHECK: Check for login errors
   if (error) {
-    console.error(error);
-    redirect("/error");
+    console.error("error superbase login: ", error);
+    return { error: "Invalid email or password" };
   }
 
-  revalidatePath("/", "layout");
-  redirect("/");
-}
-
-export async function signup(formData: FormData) {
-  const supabase = createClient();
-
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  const userData = {
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
-  };
-
-  // const data = await prisma.
-
-  const { data, error } = await supabase.auth.signUp(userData);
-
-  if (error) {
-    redirect("/error");
-  }
-
-  const user = await createUser({
-    email: userData.email,
-    password: userData.password,
-    provider: "email",
-    providerId: data?.user?.id || null,
-  } as User);
-
-  if (!user) {
-    redirect("/error");
-  }
-
+  // SUCCESS: Revalidate home page and redirect
   revalidatePath("/", "layout");
   redirect("/");
 }

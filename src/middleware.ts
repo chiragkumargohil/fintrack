@@ -9,7 +9,8 @@ export async function middleware(request: NextRequest) {
   // If the user is not logged in, redirect to the login page
   if (
     (error || !data?.user) &&
-    !request.nextUrl.pathname.startsWith("/login")
+    !request.nextUrl.pathname.startsWith("/login") &&
+    !request.nextUrl.pathname.startsWith("/signup")
   ) {
     return Response.redirect(new URL("/login", request.url));
   }
@@ -28,5 +29,6 @@ export const config = {
   matcher: [
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
     "/login",
+    "/signup",
   ],
 };

@@ -1,7 +1,14 @@
 "use client";
-import { useEffect, useState } from "react";
+
+import { useState } from "react";
 import {
   Button,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
   Input,
   Label,
   Select,
@@ -11,182 +18,234 @@ import {
   SelectValue,
   Textarea,
 } from "@/components/ui";
-import { getCategories, getTransaction } from "@/api/transaction.api";
 import { PAYMENT_MODE } from "@/constants";
 import Link from "next/link";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { TransactionSchema, TransactionSchemaType } from "@/lib/schema";
+import { toast } from "sonner";
 
 export default function TransactionForm({
   id,
-  handleSubmit,
+  categories,
+  action,
 }: {
   id?: string;
-  handleSubmit: (data: FormData) => void;
+  categories: Category[];
+  action: (data: FormData) => Promise<any>;
 }) {
-  const [form, setForm] = useState<Transaction>({} as Transaction);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const form = useForm<TransactionSchemaType>({
+    resolver: zodResolver(TransactionSchema),
+    defaultValues: {
+      categoryId: "",
+      title: "",
+      amount: 0,
+      date: new Date().toISOString().split("T")[0],
+      mode: "UPI" as PaymentMode,
+      payee: "",
+      location: "",
+      remarks: "",
+    },
+    shouldFocusError: true,
+  });
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  const handleSubmitForm: SubmitHandler<TransactionSchemaType> = async (
+    data
   ) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  useEffect(() => {
-    if (id) {
-      const fetchTransaction = async () => {
-        // Fetch transaction
-        const response = await getTransaction(Number(id));
-        setForm(response);
-      };
-
-      fetchTransaction();
-    }
-
-    const fetchCategories = async () => {
-      // Fetch categories
-      const response = await getCategories();
-      setCategories(response);
-    };
-
-    fetchCategories();
-
-    return () => {
-      setForm({} as Transaction);
-    };
-  }, [id]);
-
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
     const formData = new FormData();
-    formData.append("categoryId", String(form.categoryId));
-    formData.append("title", form.title || "");
-    formData.append("amount", String(form.amount));
-    formData.append("date", form.date as string);
-    formData.append("mode", form.mode);
-    formData.append("payee", form.payee || "");
-    formData.append("remarks", form.remarks || "");
-    handleSubmit(formData);
+    formData.append("categoryId", data.categoryId);
+    formData.append("title", data.title as string);
+    formData.append("amount", String(data.amount));
+    formData.append("date", data.date);
+    formData.append("mode", data.mode);
+    formData.append("payee", data.payee as string);
+    formData.append("location", data.location as string);
+    formData.append("remarks", data.remarks as string);
+    const response = await action(formData);
+    if (response?.error) {
+      return toast.error(response.error);
+    }
+    toast.success("Transaction created successfully");
   };
 
   return (
-    <form className="grid gap-6" onSubmit={handleFormSubmit}>
-      <div className="grid gap-3">
-        <Label htmlFor="categoryId">Transaction type</Label>
-        <Select
-          onValueChange={(value) =>
-            setForm((prev) => ({
-              ...prev,
-              categoryId: Number(value),
-            }))
-          }
-          value={String(form.categoryId)}
-        >
-          <SelectTrigger id="categoryId" className="w-full" name="categoryId">
-            <SelectValue placeholder="Select transaction type" />
-          </SelectTrigger>
-          <SelectContent>
-            {categories.map((category) => (
-              <SelectItem key={category.id} value={String(category.id)}>
-                {category.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="grid gap-3">
-        <Label htmlFor="title">Title</Label>
-        <Input
-          id="title"
-          type="text"
-          name="title"
-          className="w-full"
-          placeholder="Enter title (optional)"
-          value={form.title || ""}
-          onChange={handleChange}
-        />
-      </div>
-      <div className="grid gap-3">
-        <Label htmlFor="amount">Amount</Label>
-        <Input
-          id="amount"
-          type="number"
+    <Form {...form}>
+      <form
+        className="grid gap-6"
+        onSubmit={form.handleSubmit(handleSubmitForm)}
+      >
+        <div className="grid gap-3">
+          <FormField
+            control={form.control}
+            name="categoryId"
+            render={({ field }) => (
+              <Select
+                onValueChange={(value) => field.onChange(value)}
+                value={field.value}
+                required
+              >
+                <SelectTrigger
+                  id="category"
+                  className="w-full"
+                  name="categoryId"
+                >
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem
+                      key={String(category.id)}
+                      value={String(category.id)}
+                    >
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </div>
+        <div className="grid gap-3">
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => {
+              return (
+                <FormItem>
+                  <FormLabel>Title</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Title (optional)" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
+          />
+        </div>
+        <FormField
+          control={form.control}
           name="amount"
-          min="0"
-          className="w-full"
-          placeholder="Enter amount"
-          value={form.amount}
-          onChange={handleChange}
-          required
+          render={({ field }) => {
+            return (
+              <FormItem>
+                <FormLabel>Amount</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="Amount" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
         />
-      </div>
-      <div className="grid gap-3">
-        <Label htmlFor="date">Date</Label>
-        <Input
-          id="date"
-          type="date"
+        <FormField
+          control={form.control}
           name="date"
-          className="w-full"
-          placeholder="Enter date"
-          value={
-            form.date ? new Date(form.date).toISOString().split("T")[0] : ""
-          }
-          onChange={handleChange}
-          required
+          render={({ field }) => {
+            return (
+              <FormItem>
+                <FormLabel>Date</FormLabel>
+                <FormControl>
+                  <Input type="date" placeholder="Date" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
         />
-      </div>
-      <div className="grid gap-3">
-        <Label htmlFor="mode">Payment method</Label>
-        <Select
-          onValueChange={(value) =>
-            setForm((prev) => ({ ...prev, mode: value as PaymentMode }))
-          }
-          value={form.mode}
-          required
-        >
-          <SelectTrigger id="mode" className="w-full" name="mode">
-            <SelectValue placeholder="Select payment method" />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.keys(PAYMENT_MODE).map((mode) => (
-              <SelectItem key={mode} value={mode}>
-                {PAYMENT_MODE[mode]}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="grid gap-3">
-        <Label htmlFor="payee">Counter party name</Label>
-        <Input
-          id="payee"
-          type="text"
+        <FormField
+          control={form.control}
+          name="mode"
+          render={({ field }) => {
+            return (
+              <FormItem>
+                <FormLabel>Payment mode</FormLabel>
+                <FormControl>
+                  <Select
+                    onValueChange={(value) => field.onChange(value)}
+                    value={field.value}
+                    required
+                  >
+                    <SelectTrigger id="mode" className="w-full" name="mode">
+                      <SelectValue placeholder="Select payment method" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.keys(PAYMENT_MODE).map((mode) => (
+                        <SelectItem key={mode} value={mode}>
+                          {PAYMENT_MODE[mode]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
+        <FormField
+          control={form.control}
           name="payee"
-          className="w-full"
-          placeholder="Enter counter party name (optional)"
-          value={form.payee || ""}
-          onChange={handleChange}
+          render={({ field }) => {
+            return (
+              <FormItem>
+                <FormLabel>Payee</FormLabel>
+                <FormControl>
+                  <Input placeholder="Payee (optional)" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
         />
-      </div>
-      <div className="grid gap-3">
-        <Label htmlFor="remarks">Remarks</Label>
-        <Textarea
-          id="remarks"
+        <FormField
+          control={form.control}
+          name="location"
+          render={({ field }) => {
+            return (
+              <FormItem>
+                <FormLabel>Location</FormLabel>
+                <FormControl>
+                  <Input placeholder="Location (optional)" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
+        <FormField
+          control={form.control}
           name="remarks"
-          className="min-h-32"
-          placeholder="Enter remarks (optional)"
-          value={form.remarks || ""}
-          onChange={handleChange}
+          render={({ field }) => {
+            return (
+              <FormItem>
+                <FormLabel>Remarks</FormLabel>
+                <FormControl>
+                  <Textarea placeholder="Remarks (optional)" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
         />
-      </div>
-      <div className="grid gap-3">
-        <Button className="w-full">{id ? "Update" : "Add"} transaction</Button>
-        <Link href="/">
-          <Button className="w-full" variant="ghost">
-            Cancel
+        <div className="grid gap-3">
+          <Button
+            className="w-full"
+            type="submit"
+            disabled={form.formState.isSubmitting}
+          >
+            {form.formState.isSubmitting
+              ? "Loading..."
+              : id
+              ? "Update transaction"
+              : "Add transaction"}
           </Button>
-        </Link>
-      </div>
-    </form>
+          <Link href="/">
+            <Button className="w-full" variant="ghost">
+              Cancel
+            </Button>
+          </Link>
+        </div>
+      </form>
+    </Form>
   );
 }

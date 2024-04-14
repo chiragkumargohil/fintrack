@@ -1,3 +1,5 @@
+"use server";
+
 import {
   Button,
   Card,
@@ -8,8 +10,11 @@ import {
 import TransactionForm from "@/forms/transaction-form";
 import Link from "next/link";
 import { create } from "./actions";
+import { getCategories } from "@/api/transaction.api";
 
-export default function NewTransaction() {
+export default async function NewTransaction() {
+  const categories = await getCategories();
+
   return (
     <Card className="max-w-2xl mx-4 md:mx-auto my-4">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -21,7 +26,7 @@ export default function NewTransaction() {
         </Link>
       </CardHeader>
       <CardContent>
-        <TransactionForm handleSubmit={create} />
+        <TransactionForm categories={categories} action={create} />
       </CardContent>
     </Card>
   );
