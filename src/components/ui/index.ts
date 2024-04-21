@@ -46,6 +46,7 @@ export {
 } from "@/components/ui/drawer";
 export {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
@@ -72,3 +73,15 @@ export {
   FormMessage,
   FormField,
 } from "@/components/ui/form";
+export { Checkbox } from "@/components/ui/checkbox";
+export {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";

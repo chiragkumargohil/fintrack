@@ -9,11 +9,10 @@ import {
 } from "@/components/ui";
 import TransactionForm from "@/forms/transaction-form";
 import Link from "next/link";
-import { create } from "./actions";
-import { getCategories } from "@/api/transaction.api";
+import { create, fetchCategories } from "./actions";
 
 export default async function NewTransaction() {
-  const categories = await getCategories();
+  const categories: Category[] = await fetchCategories();
 
   return (
     <Card className="max-w-2xl mx-4 md:mx-auto my-4">

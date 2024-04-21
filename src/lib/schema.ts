@@ -1,4 +1,4 @@
-import { PAYMENT_MODE } from "@/constants";
+import { PAYMENT_MODE_ENUM } from "@/constants";
 import { z } from "zod";
 
 export const LoginSchema = z.object({
@@ -16,12 +16,12 @@ export const SignupSchema = z.object({
 export type SignupSchemaType = z.infer<typeof SignupSchema>;
 
 const PaymentModeEnum = z.enum([
-  PAYMENT_MODE.CASH,
-  PAYMENT_MODE.UPI,
-  PAYMENT_MODE.CREDIT_CARD,
-  PAYMENT_MODE.DEBIT_CARD,
-  PAYMENT_MODE.NET_BANKING,
-  PAYMENT_MODE.OTHERS,
+  PAYMENT_MODE_ENUM.CASH,
+  PAYMENT_MODE_ENUM.UPI,
+  PAYMENT_MODE_ENUM.CREDIT_CARD,
+  PAYMENT_MODE_ENUM.DEBIT_CARD,
+  PAYMENT_MODE_ENUM.NET_BANKING,
+  PAYMENT_MODE_ENUM.OTHERS,
 ]);
 export const TransactionSchema = z.object({
   categoryId: z.string().regex(/^\d+$/),

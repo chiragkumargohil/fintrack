@@ -26,4 +26,29 @@ async function createUser(data: User) {
   }
 }
 
-export { createUser };
+async function getUserByEmail(email: string): Promise<User | null> {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        middleName: true,
+        lastName: true,
+        password: true,
+        location: true,
+      },
+    });
+
+    if (!user) return null;
+
+    return user;
+  } catch (error) {
+    return null;
+  }
+}
+
+export { createUser, getUserByEmail };

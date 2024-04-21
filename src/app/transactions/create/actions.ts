@@ -3,16 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { createClient } from "@/lib/superbase/server";
 import { TransactionSchema } from "@/lib/schema";
-import { createTransaction } from "@/api/transaction.api";
+import { createTransaction, getCategories } from "@/api/transaction.api";
 
 export async function create(formData: FormData) {
-  const supabase = createClient();
-
-  // AUTH: Get user email
-  let { data: userData } = await supabase.auth.getUser();
-  const email = userData?.user?.email as string;
+  const email = "cmg.dev.projects@gmail.com";
 
   // VALIDATE: Validate the form data
   const parsedData = TransactionSchema.safeParse({
@@ -51,4 +46,15 @@ export async function create(formData: FormData) {
   // SUCCESS: Revalidate home page and redirect
   revalidatePath("/", "layout");
   redirect("/");
+}
+
+export async function fetchCategories(): Promise<Category[]> {
+  const { data, error } = await getCategories();
+
+  if (error) {
+    console.error(error);
+    return [];
+  }
+
+  return data;
 }

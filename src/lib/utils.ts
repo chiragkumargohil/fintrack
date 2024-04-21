@@ -36,6 +36,10 @@ export async function hashPassword(password: string) {
   return pass;
 }
 
+export function comparePassword(password: string, hashedPassword: string) {
+  return bcrypt.compare(password, hashedPassword);
+}
+
 /**
  * @function validateEmail
  * @description Validates an email address

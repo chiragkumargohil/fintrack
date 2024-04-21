@@ -2,41 +2,76 @@ import prisma from "@/lib/prisma";
 import { createClient } from "@/lib/superbase/client";
 const supabase = createClient();
 
-async function getTransactions(): Promise<Transaction[]> {
+async function getTransactions(email: string): Promise<Transaction[]> {
   try {
-    const transactions = await prisma.transaction.findMany({
-      include: {
-        user: true,
-        category: true,
-      },
-    });
+    if (!email) return [];
+    const response = await supabase
+      .from("Transaction")
+      .select("*,Category(*),User(*)")
+      .order("date", { ascending: false });
 
-    return transactions.map((transaction) => {
+    if (response.error) {
+      console.error(response.error);
+      return [];
+    }
+    const transactions = response.data;
+
+    return transactions.map((transaction: any) => {
       return {
         id: transaction.id,
         title: transaction.title,
         amount: transaction.amount,
         date: transaction.date,
-        categoryId: transaction.categoryId,
         mode: transaction.mode,
         location: transaction.location,
         payee: transaction.payee,
         remarks: transaction.remarks,
-        createdAt: transaction.createdAt,
-        updatedAt: transaction.updatedAt,
-      };
-    }) as Transaction[];
+        createdAt: transaction.created_at,
+        category: transaction.Category.name,
+      } as any;
+    });
   } catch (error) {
-    throw new Error(error as string);
+    console.error(error);
+    return [];
   }
 }
 
-async function getTransaction(id: number): Promise<Transaction> {
-  const transactions = await getTransactions();
-  return (
-    transactions.find((transaction) => transaction.id === id) ||
-    ({} as Transaction)
-  );
+async function getTransaction(
+  id: number
+): Promise<{ data: Transaction; error?: string }> {
+  try {
+    const transaction = await prisma.transaction.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        category: true,
+        user: true,
+      },
+    });
+
+    if (!transaction)
+      return { data: {} as Transaction, error: "Transaction not found" };
+
+    return {
+      data: {
+        id: transaction.id,
+        title: transaction.title,
+        amount: transaction.amount,
+        date: transaction.date,
+        mode: transaction.mode,
+        location: transaction.location,
+        payee: transaction.payee,
+        remarks: transaction.remarks,
+        categoryId: transaction.categoryId,
+        category: transaction.category.name,
+        email: transaction.user.email,
+      } as Transaction,
+    };
+  } catch (error) {
+    console.error(error);
+    return { data: {} as Transaction, error: error as string };
+  }
 }
 
 async function createTransaction(data: Transaction) {
@@ -82,16 +117,65 @@ async function createTransaction(data: Transaction) {
   }
 }
 
-async function updateTransaction(data: Transaction) {
-  // update local storage
-  const transactions = await getTransactions();
-  const index = transactions.findIndex(
-    (transaction) => transaction.id === data.id
-  );
-  transactions[index] = data;
+async function updateTransaction(id: number, data: Transaction) {
+  try {
+    const transaction = await prisma.transaction.update({
+      where: {
+        id: id,
+        user: {
+          email: data.email,
+        },
+      },
+      data: {
+        title: data.title,
+        amount: data.amount,
+        date: new Date(data.date),
+        mode: data.mode,
+        location: data.location,
+        payee: data.payee,
+        remarks: data.remarks,
+        categoryId: Number(data.categoryId),
+      },
+    });
 
-  localStorage.setItem("transactions", JSON.stringify(transactions));
-  return data || {};
+    return {
+      data: {
+        id: transaction.id,
+        title: transaction.title,
+        amount: transaction.amount,
+        date: transaction.date,
+        categoryId: transaction.categoryId,
+        mode: transaction.mode,
+        location: transaction.location,
+        payee: transaction.payee,
+        remarks: transaction.remarks,
+        createdAt: transaction.createdAt,
+      } as Transaction,
+    };
+  } catch (error) {
+    return { error: error as string };
+  }
+}
+
+async function deleteTransaction(id: number, email: string) {
+  try {
+    const transaction = await prisma.transaction.delete({
+      where: {
+        id,
+        // user: {
+        //   email,
+        // },
+      },
+    });
+
+    return {
+      data: {
+        id: transaction.id,
+      } as Transaction,
+    };
+  } catch (error) {
+    return { error: error as string };
+  }
 }
 
 async function getOverview() {
@@ -204,20 +288,24 @@ async function getOverview() {
   }
 }
 
-const getCategories = async (): Promise<Category[]> => {
+const getCategories = async (): Promise<{
+  data: Category[];
+  error?: string;
+}> => {
   try {
-    const response = await supabase.from("Category").select("*");
-    const categories = response.data;
+    const categories = await prisma.category.findMany();
 
-    return (categories || []).map((category: any) => {
+    const data = (categories || []).map((category: any) => {
       return {
         id: category.id,
         name: category.name,
       };
     }) as Category[];
+
+    return { data };
   } catch (error) {
     console.error(error);
-    return [];
+    return { error: error as string, data: [] };
   }
 };
 
@@ -226,6 +314,7 @@ export {
   getTransaction,
   createTransaction,
   updateTransaction,
+  deleteTransaction,
   getOverview,
   getCategories,
 };

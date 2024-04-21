@@ -1,5 +1,6 @@
 // User model
 interface User {
+  id?: number;
   email: string;
   firstName?: string | null;
   middleName?: string | null;
@@ -8,8 +9,8 @@ interface User {
   location?: string | null;
   provider?: string | null;
   providerId?: string | null;
-  createdAt: Date | string;
-  updatedAt: Date | string;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
 }
 
 // Transaction model

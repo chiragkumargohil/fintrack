@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Button,
   Form,
@@ -26,14 +26,16 @@ import { TransactionSchema, TransactionSchemaType } from "@/lib/schema";
 import { toast } from "sonner";
 
 export default function TransactionForm({
-  id,
+  transaction,
   categories,
   action,
 }: {
-  id?: string;
+  transaction?: Transaction;
   categories: Category[];
   action: (data: FormData) => Promise<any>;
 }) {
+  const isUpdate = transaction !== undefined;
+
   const form = useForm<TransactionSchemaType>({
     resolver: zodResolver(TransactionSchema),
     defaultValues: {
@@ -46,7 +48,6 @@ export default function TransactionForm({
       location: "",
       remarks: "",
     },
-    shouldFocusError: true,
   });
 
   const handleSubmitForm: SubmitHandler<TransactionSchemaType> = async (
@@ -65,8 +66,23 @@ export default function TransactionForm({
     if (response?.error) {
       return toast.error(response.error);
     }
-    toast.success("Transaction created successfully");
+
+    if (isUpdate) {
+      toast.success("Transaction updated successfully");
+    } else {
+      toast.success("Transaction created successfully");
+    }
   };
+
+  useEffect(() => {
+    if (isUpdate) {
+      const data: any = { ...transaction };
+      if (data?.date) {
+        data.date = new Date(data.date).toISOString().split("T")[0];
+      }
+      form.reset(data);
+    }
+  }, [transaction]);
 
   return (
     <Form {...form}>
@@ -78,31 +94,42 @@ export default function TransactionForm({
           <FormField
             control={form.control}
             name="categoryId"
-            render={({ field }) => (
-              <Select
-                onValueChange={(value) => field.onChange(value)}
-                value={field.value}
-                required
-              >
-                <SelectTrigger
-                  id="category"
-                  className="w-full"
-                  name="categoryId"
-                >
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem
-                      key={String(category.id)}
-                      value={String(category.id)}
-                    >
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
+            render={({ field }) => {
+              return (
+                <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    value={field.value}
+                    name={field.name}
+                  >
+                    <FormControl>
+                      <SelectTrigger
+                        id="categoryId"
+                        className="w-full"
+                        name={field.name}
+                      >
+                        <SelectValue
+                          id="categoryId"
+                          placeholder="Select category"
+                        />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {(categories || []).map((category) => (
+                        <SelectItem
+                          key={String(category.id)}
+                          value={category.id.toString()}
+                        >
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              );
+            }}
           />
         </div>
         <div className="grid gap-3">
@@ -159,24 +186,28 @@ export default function TransactionForm({
             return (
               <FormItem>
                 <FormLabel>Payment mode</FormLabel>
-                <FormControl>
-                  <Select
-                    onValueChange={(value) => field.onChange(value)}
-                    value={field.value}
-                    required
-                  >
-                    <SelectTrigger id="mode" className="w-full" name="mode">
-                      <SelectValue placeholder="Select payment method" />
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  value={field.value}
+                  name={field.name}
+                >
+                  <FormControl>
+                    <SelectTrigger id="mode" className="w-full" {...field}>
+                      <SelectValue
+                        placeholder="Select payment method"
+                        {...field}
+                      />
                     </SelectTrigger>
-                    <SelectContent>
-                      {Object.keys(PAYMENT_MODE).map((mode) => (
-                        <SelectItem key={mode} value={mode}>
-                          {PAYMENT_MODE[mode]}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormControl>
+                  </FormControl>
+                  <SelectContent>
+                    {Object.keys(PAYMENT_MODE).map((mode) => (
+                      <SelectItem key={mode} value={mode}>
+                        {PAYMENT_MODE[mode]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             );
@@ -235,7 +266,7 @@ export default function TransactionForm({
           >
             {form.formState.isSubmitting
               ? "Loading..."
-              : id
+              : isUpdate
               ? "Update transaction"
               : "Add transaction"}
           </Button>

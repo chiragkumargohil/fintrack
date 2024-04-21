@@ -10,7 +10,7 @@ import LoginForm from "@/forms/login-form";
 
 export default function Login() {
   return (
-    <main className="flex items-center justify-center h-screen px-2">
+    <div className="flex items-center justify-center h-screen px-2">
       <Card className="mx-auto max-w-md w-full">
         <CardHeader>
           <CardTitle className="text-2xl">Login</CardTitle>
@@ -22,6 +22,6 @@ export default function Login() {
           <LoginForm action={login} />
         </CardContent>
       </Card>
-    </main>
+    </div>
   );
 }

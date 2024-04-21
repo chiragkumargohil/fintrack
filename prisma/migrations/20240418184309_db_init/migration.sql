@@ -13,7 +13,7 @@ CREATE TABLE "User" (
     "provider" TEXT DEFAULT 'email',
     "providerId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -30,7 +30,7 @@ CREATE TABLE "Transaction" (
     "payee" TEXT,
     "remarks" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "userId" INTEGER NOT NULL,
 
     CONSTRAINT "Transaction_pkey" PRIMARY KEY ("id")
@@ -42,7 +42,7 @@ CREATE TABLE "Category" (
     "name" TEXT NOT NULL,
     "userId" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
 );

@@ -8,9 +8,8 @@ import {
 } from "@/components/ui";
 import Link from "next/link";
 import Overview from "./dashboard/overview";
-import Transactions from "./dashboard/transactions";
 import { Plus } from "lucide-react";
-import { Navbar } from "@/components/navbar";
+import LogoutButton from "@/components/logout-button";
 
 export default async function Dashboard() {
   const { data, error } = await getOverview();
@@ -30,7 +29,8 @@ export default async function Dashboard() {
           <div className="flex items-center justify-between space-y-2">
             <h2 className="text-3xl font-bold tracking-tight">Hey, Chirag!</h2>
             <div className="flex items-center gap-4">
-              <Link href="/transactions/new">
+              <LogoutButton />
+              <Link href="/transactions/create">
                 <Button className="flex items-center gap-2">
                   <Plus size={16} strokeWidth={3} />
                   New transaction
@@ -41,19 +41,16 @@ export default async function Dashboard() {
           <Tabs defaultValue="overview" className="space-y-4">
             <TabsList>
               <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="transactions">Transactions</TabsTrigger>
+              <TabsTrigger value="transactions" disabled>
+                Ledger
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="overview" className="space-y-4">
               <Overview data={data} />
             </TabsContent>
-            <TabsContent value="transactions" className="space-y-4">
-              <Transactions />
-            </TabsContent>
           </Tabs>
         </div>
       </div>
-
-      <Navbar />
     </>
   );
 }

@@ -7,4 +7,13 @@ const PAYMENT_MODE: Record<string, string> = {
   OTHERS: "Others",
 };
 
-export { PAYMENT_MODE };
+const PAYMENT_MODE_ENUM = {
+  CASH: "CASH",
+  UPI: "UPI",
+  CREDIT_CARD: "CREDIT_CARD",
+  DEBIT_CARD: "DEBIT_CARD",
+  NET_BANKING: "NET_BANKING",
+  OTHERS: "OTHERS",
+};
+
+export { PAYMENT_MODE, PAYMENT_MODE_ENUM };

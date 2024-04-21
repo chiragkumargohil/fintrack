@@ -3,12 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { createClient } from "@/lib/superbase/server";
 import { LoginSchema } from "@/lib/schema";
+import { signIn } from "../../lib/auth/auth";
+import { AuthError } from "next-auth";
 
 export async function login(formData: FormData) {
-  const supabase = createClient();
-
   // VALIDATE: Validate the form data
   const parsedData = LoginSchema.safeParse({
     email: formData.get("email") as string,
@@ -22,12 +21,24 @@ export async function login(formData: FormData) {
   }
 
   // AUTH: Login user
-  const { error } = await supabase.auth.signInWithPassword(parsedData.data);
+  try {
+    const user = await signIn("credentials", formData);
+    if (!user) {
+      return { error: "Invalid credentials" };
+    }
+  } catch (error) {
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case "CredentialsSignin":
+          return { error: "Invalid credentials" };
+        default:
+          return { error: "Something went wrong" };
+      }
+    }
 
-  // CHECK: Check for login errors
-  if (error) {
-    console.error("error superbase login: ", error);
-    return { error: "Invalid email or password" };
+    if (typeof error === "string" && !error.includes("NEXT_REDIRECT")) {
+      return { error: "Something went wrong" };
+    }
   }
 
   // SUCCESS: Revalidate home page and redirect
