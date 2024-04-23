@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { createClient } from "@/lib/superbase/client";
+import { getMonthNameFromNumber } from "@/lib/utils";
 const supabase = createClient();
 
 async function getTransactions(email: string): Promise<Transaction[]> {
@@ -260,30 +261,80 @@ async function getOverview() {
 
     promises.push(
       prisma.transaction.findMany({
+        take: 5,
+        orderBy: {
+          date: "desc",
+        },
         where: {
           date: {
             gte: currentMonthStart,
             lte: currentMonthEnd,
           },
         },
-        include: {
-          category: true,
+        select: {
+          amount: true,
+          date: true,
+          category: {
+            select: {
+              name: true,
+            },
+          },
         },
       })
     );
 
+    promises.push(
+      prisma.$queryRaw`
+        SELECT 
+          EXTRACT(MONTH FROM t.date) AS month,
+          SUM(CASE WHEN c.name = 'Investment' THEN t.amount ELSE 0 END) AS investment,
+          SUM(CASE WHEN c.name NOT IN ('Investment', 'Income') THEN t.amount ELSE 0 END) AS expense,
+          SUM(CASE WHEN c.name = 'Income' THEN t.amount ELSE 0 END) -
+          (SUM(CASE WHEN c.name = 'Investment' THEN t.amount ELSE 0 END) +
+          SUM(CASE WHEN c.name NOT IN ('Investment', 'Income') THEN t.amount ELSE 0 END)) AS saved
+        FROM 
+          "Transaction" t
+        INNER JOIN 
+          "Category" c ON t."categoryId" = c.id
+        WHERE
+          EXTRACT(YEAR FROM t.date) = EXTRACT(YEAR FROM CURRENT_DATE)
+        GROUP BY
+          EXTRACT(MONTH FROM t.date)
+        ORDER BY
+          EXTRACT(MONTH FROM t.date);
+      `
+    );
+
     const responses = await prisma.$transaction(promises);
 
+    responses[3] = responses[3].map((transaction: any) => {
+      return {
+        category: transaction?.category?.name,
+        date: new Date(transaction?.date).toLocaleDateString(),
+        amount: transaction.amount,
+      };
+    });
+
+    responses[4] = new Array(12).fill(0).map((_, index) => {
+      const month = index;
+      const data = responses[4].find((item: any) => item.month == month);
+      return {
+        name: getMonthNameFromNumber(month),
+        investment: data?.investment || 0,
+        expense: data?.expense || 0,
+        saved: data?.saved || 0,
+      };
+    });
+
     return {
-      data: {
-        totalIncome: responses[0]._sum.amount || 0,
-        totalExpense: responses[2]._sum.amount || 0,
-        totalInvestment: responses[1]._sum.amount || 0,
-        transactions: [],
-        transactionTrend: [],
-      },
+      totalIncome: responses[0]._sum.amount || 0,
+      totalExpense: responses[2]._sum.amount || 0,
+      totalInvestment: responses[1]._sum.amount || 0,
+      transactions: responses[3],
+      transactionTrend: responses[4],
     };
   } catch (error) {
+    console.error(error);
     return { error: error as string };
   }
 }

@@ -30,6 +30,12 @@ export function getMonthName(dateString: string) {
   return new Intl.DateTimeFormat("en", { month: "short" }).format(date);
 }
 
+export function getMonthNameFromNumber(month: number) {
+  const date = new Date();
+  date.setMonth(month);
+  return new Intl.DateTimeFormat("en", { month: "short" }).format(date);
+}
+
 export async function hashPassword(password: string) {
   const salt = await bcrypt.genSalt(10);
   const pass = await bcrypt.hash(password, salt);
@@ -73,3 +79,6 @@ export function isStrongPassword(password: string): boolean {
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/;
   return re.test(password);
 }
+
+export const fetcher = (url: string, options?: RequestInit) =>
+  fetch(url, options).then((res) => res.json());

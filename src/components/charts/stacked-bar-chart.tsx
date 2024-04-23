@@ -33,7 +33,7 @@ export const StackedBarChart: React.FC<StackedBarChartProps> = ({
           label={{
             value: xAxisLabel,
             position: "insideBottomRight",
-            offset: -10,
+            offset: 0,
           }}
           style={{ fontSize: 12 }}
         />
