@@ -6,8 +6,9 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatNumberInIndianStyle(number: number) {
+export function formatNumberInIndianStyle(number = 0) {
   // Convert the number to a string
+  number = number || 0;
   const numberString = number.toString();
 
   // Define the Indian number formatting pattern
@@ -23,6 +24,15 @@ export function formatNumberInIndianStyle(number: number) {
 
   // Replace the number with the Indian style formatting
   return `${integerPart},${decimalPart}`;
+}
+
+export function formatDate(dateString: string) {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-IN", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 }
 
 export function getMonthName(dateString: string) {
@@ -82,3 +92,7 @@ export function isStrongPassword(password: string): boolean {
 
 export const fetcher = (url: string, options?: RequestInit) =>
   fetch(url, options).then((res) => res.json());
+
+export function capitalizeFirstLetter(string: string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}

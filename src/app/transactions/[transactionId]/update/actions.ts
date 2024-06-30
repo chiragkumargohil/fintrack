@@ -9,6 +9,7 @@ import {
   getTransaction,
   updateTransaction,
 } from "@/api/transaction.api";
+import { auth } from "@/lib/auth/auth";
 
 export async function fetchTransaction(
   transactionId: string
@@ -36,7 +37,12 @@ export async function fetchTransaction(
 
 export async function update(id: number, formData: FormData) {
   // AUTH: Get user email
-  const email = "cmg.dev.projects@gmail.com";
+  const { user } = (await auth()) || {};
+  const email = user?.email;
+
+  if (!email) {
+    return { error: "Session not found" };
+  }
 
   // VALIDATE: Validate the form
   const parsedData = TransactionSchema.safeParse({
@@ -72,9 +78,9 @@ export async function update(id: number, formData: FormData) {
     return { error: "Error updating transaction" };
   }
 
-  // SUCCESS: Revalidate home page and redirect
-  revalidatePath("/", "layout");
-  redirect("/");
+  // SUCCESS: Revalidate transactions page
+  revalidatePath("/transactions");
+  redirect("/transactions");
 }
 
 export async function fetchCategories(): Promise<Category[]> {

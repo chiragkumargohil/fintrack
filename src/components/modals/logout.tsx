@@ -1,3 +1,4 @@
+import { logout } from "@/app/logout/actions";
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -8,28 +9,26 @@ import {
   AlertDialogFooter,
   AlertDialogCancel,
   AlertDialogAction,
+  Button,
 } from "@/components/ui";
-import { remove } from "./actions";
 
-export function DeleteModal(props: { id: string }) {
-  const { id } = props || {};
-
-  const removeTransaction = remove.bind(null, id);
-
+export function LogoutModal() {
   return (
     <AlertDialog>
-      <AlertDialogTrigger>Delete</AlertDialogTrigger>
+      <Button variant="link" asChild className="w-full justify-start">
+        <AlertDialogTrigger>Logout</AlertDialogTrigger>
+      </Button>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogTitle>Confirm Logout</AlertDialogTitle>
           <AlertDialogDescription>
-            Deleting the transaction cannot be undone.
+            Are you sure you want to log out?
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <form action={removeTransaction}>
+        <form action={logout}>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction type="submit">Delete</AlertDialogAction>
+            <AlertDialogAction type="submit">Yes, log out</AlertDialogAction>
           </AlertDialogFooter>
         </form>
       </AlertDialogContent>

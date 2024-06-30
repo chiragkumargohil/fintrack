@@ -10,12 +10,6 @@ import {
   FormLabel,
   FormMessage,
   Input,
-  Label,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   Textarea,
 } from "@/components/ui";
 import { PAYMENT_MODE } from "@/constants";
@@ -24,6 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { TransactionSchema, TransactionSchemaType } from "@/lib/schema";
 import { toast } from "sonner";
+import Select from "@/components/ui/temp-select";
 
 export default function TransactionForm({
   transaction,
@@ -80,6 +75,7 @@ export default function TransactionForm({
       if (data?.date) {
         data.date = new Date(data.date).toISOString().split("T")[0];
       }
+      data.categoryId = data.categoryId ? data.categoryId.toString() : "";
       form.reset(data);
     }
   }, [transaction]);
@@ -98,35 +94,19 @@ export default function TransactionForm({
               return (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                    value={field.value}
-                    name={field.name}
-                  >
-                    <FormControl>
-                      <SelectTrigger
-                        id="categoryId"
-                        className="w-full"
-                        name={field.name}
-                      >
-                        <SelectValue
-                          id="categoryId"
-                          placeholder="Select category"
-                        />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {(categories || []).map((category) => (
-                        <SelectItem
-                          key={String(category.id)}
-                          value={category.id.toString()}
-                        >
-                          {category.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <Select
+                      id="categoryId"
+                      name="categoryId"
+                      value={field.value}
+                      onChange={field.onChange}
+                      options={categories.map((category) => ({
+                        value: category.id?.toString(),
+                        label: category.name,
+                      }))}
+                    />
+                  </FormControl>
+                  <FormMessage />
                 </FormItem>
               );
             }}
@@ -185,29 +165,19 @@ export default function TransactionForm({
           render={({ field }) => {
             return (
               <FormItem>
-                <FormLabel>Payment mode</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  value={field.value}
-                  name={field.name}
-                >
-                  <FormControl>
-                    <SelectTrigger id="mode" className="w-full" {...field}>
-                      <SelectValue
-                        placeholder="Select payment method"
-                        {...field}
-                      />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {Object.keys(PAYMENT_MODE).map((mode) => (
-                      <SelectItem key={mode} value={mode}>
-                        {PAYMENT_MODE[mode]}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FormLabel>Mode</FormLabel>
+                <FormControl>
+                  <Select
+                    id="mode"
+                    name="mode"
+                    value={field.value}
+                    onChange={field.onChange}
+                    options={Object.keys(PAYMENT_MODE).map((mode) => ({
+                      value: mode,
+                      label: PAYMENT_MODE[mode],
+                    }))}
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             );
@@ -219,7 +189,9 @@ export default function TransactionForm({
           render={({ field }) => {
             return (
               <FormItem>
-                <FormLabel>Payee</FormLabel>
+                <FormLabel>
+                  Payee / Payer
+                </FormLabel>
                 <FormControl>
                   <Input placeholder="Payee (optional)" {...field} />
                 </FormControl>
@@ -270,7 +242,7 @@ export default function TransactionForm({
               ? "Update transaction"
               : "Add transaction"}
           </Button>
-          <Link href="/">
+          <Link href={isUpdate ? "/transactions" : "/"}>
             <Button className="w-full" variant="ghost">
               Cancel
             </Button>

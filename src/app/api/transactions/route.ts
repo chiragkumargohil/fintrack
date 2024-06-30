@@ -8,6 +8,9 @@ export async function GET() {
       include: {
         category: true,
       },
+      orderBy: {
+        date: "desc",
+      },
     });
 
     const data = transactions.map((transaction: any) => {

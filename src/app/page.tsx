@@ -13,14 +13,13 @@ import Link from "next/link";
 import Overview from "./dashboard/overview";
 import { Plus } from "lucide-react";
 import { fetcher } from "@/lib/utils";
+import Loading from "./loading";
 
 export default function Dashboard() {
   const { data, isLoading: loading, error } = useSWR("/api/overview", fetcher);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">Loading...</div>
-    );
+    return <Loading />;
   }
 
   if (error) {
@@ -38,12 +37,15 @@ export default function Dashboard() {
           <div className="flex items-center justify-between space-y-2">
             <h2 className="text-3xl font-bold tracking-tight">Hey, Chirag!</h2>
             <div className="flex items-center gap-4">
-              <Link href="/transactions/create">
-                <Button className="flex items-center gap-2">
+              <Button asChild>
+                <Link
+                  href="/transactions/create"
+                  className="flex items-center gap-2"
+                >
                   <Plus size={16} strokeWidth={3} />
-                  New transaction
-                </Button>
-              </Link>
+                  <span className="hidden md:block">Add transaction</span>
+                </Link>
+              </Button>
             </div>
           </div>
           <Tabs defaultValue="overview" className="space-y-4">

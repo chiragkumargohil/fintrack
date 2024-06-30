@@ -24,9 +24,13 @@ const PaymentModeEnum = z.enum([
   PAYMENT_MODE_ENUM.OTHERS,
 ]);
 export const TransactionSchema = z.object({
-  categoryId: z.string().regex(/^\d+$/),
+  categoryId: z.string().regex(/^\d+$/, { message: "Category is required" }),
   title: z.string().optional(),
-  amount: z.number().min(0).nonnegative().or(z.string().regex(/^\d+(\.\d{1,2})?$/)),
+  amount: z
+    .number()
+    .min(0)
+    .nonnegative()
+    .or(z.string().regex(/^\d+(\.\d{1,2})?$/)),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   mode: PaymentModeEnum,
   payee: z.string().optional(),

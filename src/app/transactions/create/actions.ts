@@ -5,9 +5,15 @@ import { redirect } from "next/navigation";
 
 import { TransactionSchema } from "@/lib/schema";
 import { createTransaction, getCategories } from "@/api/transaction.api";
+import { auth } from "@/lib/auth/auth";
 
 export async function create(formData: FormData) {
-  const email = "cmg.dev.projects@gmail.com";
+  const { user } = (await auth()) || {};
+  const email = user?.email;
+
+  if (!email) {
+    return { error: "Session not found" };
+  }
 
   // VALIDATE: Validate the form data
   const parsedData = TransactionSchema.safeParse({

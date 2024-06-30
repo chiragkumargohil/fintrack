@@ -32,7 +32,8 @@ import {
 import { ChevronDown, Ellipsis } from "lucide-react";
 import Link from "next/link";
 import { PAYMENT_MODE } from "@/constants";
-import { DeleteModal } from "./delete-modal";
+import { DeleteTransactionModal } from "../../components/modals";
+import Loading from "../loading";
 
 export const columns: ColumnDef<any>[] = [
   {
@@ -70,7 +71,7 @@ export const columns: ColumnDef<any>[] = [
   },
   {
     accessorKey: "payee",
-    header: "Payee",
+    header: "Payee / Payer",
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("payee")}</div>
     ),
@@ -101,7 +102,7 @@ export const columns: ColumnDef<any>[] = [
           <Button asChild>
             <Link href={`/transactions/${payment.id}/update`}>Update</Link>
           </Button>
-          <DeleteModal id={payment.id} />
+          <DeleteTransactionModal id={payment.id} />
         </div>
       );
     },
@@ -157,11 +158,15 @@ export default function TransactionList() {
     fetchTransactions();
   }, []);
 
+  if (loading) {
+    return <Loading />;
+  }
+
   return (
     <div className="w-full px-8">
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter emails..."
+          placeholder="Filter category..."
           value={
             (table.getColumn("category")?.getFilterValue() as string) ?? ""
           }

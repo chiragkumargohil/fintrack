@@ -3,6 +3,7 @@ import { hashPassword } from "@/lib/utils";
 
 async function createUser(data: User) {
   try {
+    data.email = data.email.toLowerCase();
     let hashedPassword = null;
     if (data.password) {
       hashedPassword = await hashPassword(data.password);
@@ -22,6 +23,7 @@ async function createUser(data: User) {
     });
     return user;
   } catch (error) {
+    console.error(error);
     throw new Error(error as string);
   }
 }

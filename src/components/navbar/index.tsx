@@ -11,19 +11,22 @@ import {
 import { ChevronsUpDown } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import LogoutButton from "../logout-button";
+import { LogoutModal } from "../modals";
 
 const LINKS = [
   { label: "Dashboard", href: "/" },
   { label: "Transactions", href: "/transactions" },
-  { label: "New transaction", href: "/transactions/create" },
+  { label: "Add transaction", href: "/transactions/create" },
 ];
 
 export function Navbar() {
-  const [open, setOpen] = useState(false);
-  // PATH
+  // ----- Path ----- //
   const path = usePathname();
 
+  // ----- State ----- //
+  const [open, setOpen] = useState(false);
+
+  // ----- Render ----- //
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild className="w-full py-4">
@@ -44,8 +47,7 @@ export function Navbar() {
             </li>
           ))}
           <hr />
-          {/* LOGOUT */}
-          {/* <LogoutButton /> */}
+          <LogoutModal />
         </ul>
         <DrawerFooter>
           <DrawerClose asChild>

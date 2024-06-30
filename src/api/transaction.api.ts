@@ -1,6 +1,10 @@
 import prisma from "@/lib/prisma";
 import { createClient } from "@/lib/superbase/client";
-import { getMonthNameFromNumber } from "@/lib/utils";
+import {
+  formatNumberInIndianStyle,
+  formatDate,
+  getMonthNameFromNumber,
+} from "@/lib/utils";
 const supabase = createClient();
 
 async function getTransactions(email: string): Promise<Transaction[]> {
@@ -179,7 +183,7 @@ async function deleteTransaction(id: number, email: string) {
   }
 }
 
-async function getOverview() {
+async function getOverview(email: string) {
   try {
     const currentMonthStart = new Date(
       new Date().getFullYear(),
@@ -189,13 +193,17 @@ async function getOverview() {
     const currentMonthEnd = new Date(
       new Date().getFullYear(),
       new Date().getMonth() + 1,
-      0
+      1
     );
 
     const promises: any = [];
+    // 0: Total Income
     promises.push(
       prisma.transaction.aggregate({
         where: {
+          user: {
+            email,
+          },
           date: {
             gte: currentMonthStart,
             lte: currentMonthEnd,
@@ -215,9 +223,13 @@ async function getOverview() {
       })
     );
 
+    // 1: Total Investment
     promises.push(
       prisma.transaction.aggregate({
         where: {
+          user: {
+            email,
+          },
           date: {
             gte: currentMonthStart,
             lte: currentMonthEnd,
@@ -237,9 +249,13 @@ async function getOverview() {
       })
     );
 
+    // 2: Total Expense
     promises.push(
       prisma.transaction.aggregate({
         where: {
+          user: {
+            email,
+          },
           date: {
             gte: currentMonthStart,
             lte: currentMonthEnd,
@@ -259,6 +275,7 @@ async function getOverview() {
       })
     );
 
+    // 3: Last 5 Transactions
     promises.push(
       prisma.transaction.findMany({
         take: 5,
@@ -266,6 +283,9 @@ async function getOverview() {
           date: "desc",
         },
         where: {
+          user: {
+            email,
+          },
           date: {
             gte: currentMonthStart,
             lte: currentMonthEnd,
@@ -283,6 +303,7 @@ async function getOverview() {
       })
     );
 
+    // 4: Transaction Trend
     promises.push(
       prisma.$queryRaw`
         SELECT 
@@ -294,10 +315,14 @@ async function getOverview() {
           SUM(CASE WHEN c.name NOT IN ('Investment', 'Income') THEN t.amount ELSE 0 END)) AS saved
         FROM 
           "Transaction" t
+        LEFT JOIN
+          "User" u ON t."userId" = u.id
         INNER JOIN 
           "Category" c ON t."categoryId" = c.id
         WHERE
           EXTRACT(YEAR FROM t.date) = EXTRACT(YEAR FROM CURRENT_DATE)
+        AND
+          u.email = ${email}
         GROUP BY
           EXTRACT(MONTH FROM t.date)
         ORDER BY
@@ -310,8 +335,8 @@ async function getOverview() {
     responses[3] = responses[3].map((transaction: any) => {
       return {
         category: transaction?.category?.name,
-        date: new Date(transaction?.date).toLocaleDateString(),
-        amount: transaction.amount,
+        date: formatDate(transaction?.date),
+        amount: formatNumberInIndianStyle(transaction.amount),
       };
     });
 
@@ -320,16 +345,16 @@ async function getOverview() {
       const data = responses[4].find((item: any) => item.month == month);
       return {
         name: getMonthNameFromNumber(month),
-        investment: data?.investment || 0,
-        expense: data?.expense || 0,
-        saved: data?.saved || 0,
+        Investment: data?.investment || 0,
+        Expense: data?.expense || 0,
+        Saved: data?.saved > 0 ? data?.saved : 0,
       };
     });
 
     return {
-      totalIncome: responses[0]._sum.amount || 0,
-      totalExpense: responses[2]._sum.amount || 0,
-      totalInvestment: responses[1]._sum.amount || 0,
+      totalIncome: formatNumberInIndianStyle(responses[0]._sum.amount),
+      totalExpense: formatNumberInIndianStyle(responses[2]._sum.amount),
+      totalInvestment: formatNumberInIndianStyle(responses[1]._sum.amount),
       transactions: responses[3],
       transactionTrend: responses[4],
     };
@@ -346,7 +371,7 @@ const getCategories = async (): Promise<{
   try {
     const categories = await prisma.category.findMany();
 
-    const data = (categories || []).map((category: any) => {
+    const data = (categories || []).map((category) => {
       return {
         id: category.id,
         name: category.name,

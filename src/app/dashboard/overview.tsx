@@ -39,15 +39,14 @@ const OverviewCard = ({
 export default function Overview({
   data,
 }: {
-  data: any;
-  // {
-  //   totalIncome: number;
-  //   totalExpense: number;
-  //   totalInvestment: number;
-  //   physicalWallet: number;
-  //   transactions: any[];
-  //   transactionTrend: any[];
-  // };
+  data: {
+    totalIncome: number;
+    totalExpense: number;
+    totalInvestment: number;
+    physicalWallet: number;
+    transactions: any[];
+    transactionTrend: any[];
+  };
 }) {
   return (
     <>
@@ -98,7 +97,7 @@ export default function Overview({
         />
         <OverviewCard
           title="Physical wallet"
-          value={`₹${data.physicalWallet || 0}`}
+          value={"-" || `₹${data.physicalWallet || 0}`}
           icon={
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -123,9 +122,8 @@ export default function Overview({
           <CardContent className="pl-2">
             <StackedBarChart
               data={data.transactionTrend || []}
-              categories={["expense", "investment", "saved"]}
+              categories={["Expense", "Investment", "Saved"]}
               colors={["#8884d8", "#82ca9d", "#ffc658"]}
-              // xAxisLabel={new Date().getFullYear().toString()}
             />
           </CardContent>
         </Card>

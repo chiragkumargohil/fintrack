@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 
 import { SignupSchema } from "@/lib/schema";
-import { createUser } from "@/api/user.api";
+import { createUser, getUserByEmail } from "@/api/user.api";
 
 export async function signup(formData: FormData) {
   // VALIDATE: Validate the form data
@@ -23,6 +23,12 @@ export async function signup(formData: FormData) {
   // AUTH: Sign up user
   const userData = parsedData.data;
 
+  // CHECK: Check for existing user
+  const existingUser = await getUserByEmail(userData.email);
+  if (existingUser) {
+    return { error: "User already exists" };
+  }
+
   // CREATE: Create user
   const user = await createUser({
     firstName: userData.firstName,
@@ -34,7 +40,6 @@ export async function signup(formData: FormData) {
 
   // CHECK: Check for create user errors
   if (!user) {
-    console.error("Error creating user");
     return { error: "Error creating user" };
   }
 
