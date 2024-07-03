@@ -6,6 +6,8 @@ import { redirect } from "next/navigation";
 import { TransactionSchema } from "@/lib/schema";
 import { createTransaction, getCategories } from "@/api/transaction.api";
 import { auth } from "@/lib/auth/auth";
+import { Category, PaymentMode } from "@prisma/client";
+import { TransactionWithCategory } from "@/lib/types";
 
 export async function create(formData: FormData) {
   const { user } = (await auth()) || {};
@@ -41,7 +43,7 @@ export async function create(formData: FormData) {
     categoryId: Number(data.categoryId),
     amount: Number(data.amount),
     mode: data.mode as PaymentMode,
-  });
+  } as TransactionWithCategory);
 
   // CHECK: Check for create transaction errors
   if (error) {

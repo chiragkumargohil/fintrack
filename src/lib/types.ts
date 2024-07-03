@@ -1,5 +1,7 @@
+import { PaymentMode as PrismaPaymentMode } from "@prisma/client";
+
 // User model
-interface User {
+export interface User {
   id?: number;
   email: string;
   firstName?: string | null;
@@ -14,7 +16,7 @@ interface User {
 }
 
 // Transaction model
-interface Transaction {
+export interface Transaction {
   id?: number;
   title?: string | null;
   amount: number;
@@ -30,7 +32,7 @@ interface Transaction {
 }
 
 // Category model
-interface Category {
+export interface Category {
   id: number;
   name: string;
   email?: string | null;
@@ -39,11 +41,25 @@ interface Category {
 }
 
 // PaymentMode enum
-enum PaymentMode {
-  CASH = "CASH",
-  UPI = "UPI",
-  CREDIT_CARD = "CREDIT_CARD",
-  DEBIT_CARD = "DEBIT_CARD",
-  NET_BANKING = "NET_BANKING",
-  OTHERS = "OTHERS",
+export enum PaymentMode {
+  "CASH",
+  "UPI",
+  "CREDIT_CARD",
+  "DEBIT_CARD",
+  "NET_BANKING",
+  "OTHERS",
 }
+
+export type TransactionWithCategory = {
+  id?: number;
+  title: string;
+  amount: number;
+  date: Date | string;
+  mode: PrismaPaymentMode;
+  location: string;
+  payee: string;
+  remarks: string;
+  categoryId: number;
+  category?: string;
+  email: string;
+};

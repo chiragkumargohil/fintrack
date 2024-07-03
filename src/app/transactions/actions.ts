@@ -2,6 +2,7 @@
 
 import { deleteTransaction } from "@/api/transaction.api";
 import { auth } from "@/lib/auth/auth";
+import { Transaction } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
 export const remove = async (id: string) => {

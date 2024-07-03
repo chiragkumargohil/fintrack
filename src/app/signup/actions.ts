@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 
 import { SignupSchema } from "@/lib/schema";
 import { createUser, getUserByEmail } from "@/api/user.api";
+import { User } from "@prisma/client";
 
 export async function signup(formData: FormData) {
   // VALIDATE: Validate the form data

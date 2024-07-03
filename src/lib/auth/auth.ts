@@ -24,8 +24,7 @@ export const { auth, signIn, signOut } = NextAuth({
           user.password as string
         );
         if (passwordsMatch) {
-          delete user.password;
-          return user;
+          return { ...user, password: undefined };
         }
 
         return null;

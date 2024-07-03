@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   Button,
   Form,
@@ -19,13 +19,15 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { TransactionSchema, TransactionSchemaType } from "@/lib/schema";
 import { toast } from "sonner";
 import Select from "@/components/ui/temp-select";
+import { Category, PaymentMode, Transaction } from "@prisma/client";
+import { TransactionWithCategory } from "@/lib/types";
 
 export default function TransactionForm({
   transaction,
   categories,
   action,
 }: {
-  transaction?: Transaction;
+  transaction?: Transaction | TransactionWithCategory;
   categories: Category[];
   action: (data: FormData) => Promise<any>;
 }) {

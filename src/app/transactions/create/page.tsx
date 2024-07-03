@@ -10,6 +10,7 @@ import {
 import { TransactionForm } from "@/forms";
 import Link from "next/link";
 import { create, fetchCategories } from "./actions";
+import { Category } from "@prisma/client";
 
 export default async function NewTransaction() {
   // Fetch categories from the server

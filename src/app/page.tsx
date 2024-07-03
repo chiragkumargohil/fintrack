@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React from "react";
 import useSWR from "swr";
 import {
   Button,
@@ -25,7 +25,7 @@ export default function Dashboard() {
   if (error) {
     return (
       <div className="flex items-center justify-center h-full">
-        "Something went wrong!"
+        Something went wrong!
       </div>
     );
   }

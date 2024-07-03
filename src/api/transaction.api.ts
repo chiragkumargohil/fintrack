@@ -1,10 +1,12 @@
 import prisma from "@/lib/prisma";
 import { createClient } from "@/lib/superbase/client";
+import { TransactionWithCategory } from "@/lib/types";
 import {
   formatNumberInIndianStyle,
   formatDate,
   getMonthNameFromNumber,
 } from "@/lib/utils";
+import { Category, PaymentMode, Transaction } from "@prisma/client";
 const supabase = createClient();
 
 async function getTransactions(email: string): Promise<Transaction[]> {
@@ -43,20 +45,43 @@ async function getTransactions(email: string): Promise<Transaction[]> {
 
 async function getTransaction(
   id: number
-): Promise<{ data: Transaction; error?: string }> {
+): Promise<{
+  data: TransactionWithCategory;
+  error?: string;
+}> {
   try {
     const transaction = await prisma.transaction.findUnique({
       where: {
         id,
       },
-      include: {
-        category: true,
-        user: true,
+      select: {
+        id: true,
+        title: true,
+        amount: true,
+        date: true,
+        mode: true,
+        location: true,
+        payee: true,
+        remarks: true,
+        categoryId: true,
+        category: {
+          select: {
+            name: true,
+          },
+        },
+        user: {
+          select: {
+            email: true,
+          },
+        },
       },
     });
 
     if (!transaction)
-      return { data: {} as Transaction, error: "Transaction not found" };
+      return {
+        data: {} as TransactionWithCategory,
+        error: "Transaction not found",
+      };
 
     return {
       data: {
@@ -64,22 +89,22 @@ async function getTransaction(
         title: transaction.title,
         amount: transaction.amount,
         date: transaction.date,
-        mode: transaction.mode,
+        mode: transaction.mode as PaymentMode,
         location: transaction.location,
         payee: transaction.payee,
         remarks: transaction.remarks,
         categoryId: transaction.categoryId,
         category: transaction.category.name,
         email: transaction.user.email,
-      } as Transaction,
+      } as TransactionWithCategory,
     };
   } catch (error) {
     console.error(error);
-    return { data: {} as Transaction, error: error as string };
+    return { data: {} as TransactionWithCategory, error: error as string };
   }
 }
 
-async function createTransaction(data: Transaction) {
+async function createTransaction(data: TransactionWithCategory) {
   try {
     const transaction = await prisma.transaction.create({
       data: {
@@ -122,7 +147,10 @@ async function createTransaction(data: Transaction) {
   }
 }
 
-async function updateTransaction(id: number, data: Transaction) {
+async function updateTransaction(
+  id: number,
+  data: TransactionWithCategory
+) {
   try {
     const transaction = await prisma.transaction.update({
       where: {
@@ -167,9 +195,9 @@ async function deleteTransaction(id: number, email: string) {
     const transaction = await prisma.transaction.delete({
       where: {
         id,
-        // user: {
-        //   email,
-        // },
+        user: {
+          email,
+        },
       },
     });
 

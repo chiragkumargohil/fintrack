@@ -11,7 +11,10 @@ import {
 } from "@/components/ui";
 import { remove } from "../../app/transactions/actions";
 
-export function DeleteTransactionModal(props: { id: string }) {
+export function DeleteTransactionModal(props: {
+  id: string;
+  onDelete: () => void;
+}) {
   // Extract the id from the props
   const { id } = props || {};
 
@@ -28,7 +31,12 @@ export function DeleteTransactionModal(props: { id: string }) {
             Deleting the transaction cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <form action={removeTransaction}>
+        <form
+          action={async () => {
+            await removeTransaction();
+            props.onDelete();
+          }}
+        >
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction type="submit">Delete</AlertDialogAction>

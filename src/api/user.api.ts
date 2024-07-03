@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { hashPassword } from "@/lib/utils";
+import { User } from "@prisma/client";
 
 async function createUser(data: User) {
   try {
@@ -47,7 +48,7 @@ async function getUserByEmail(email: string): Promise<User | null> {
 
     if (!user) return null;
 
-    return user;
+    return user as User;
   } catch (error) {
     return null;
   }

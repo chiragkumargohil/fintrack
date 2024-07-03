@@ -10,18 +10,20 @@ import {
   updateTransaction,
 } from "@/api/transaction.api";
 import { auth } from "@/lib/auth/auth";
+import { Category, PaymentMode, Transaction } from "@prisma/client";
+import { TransactionWithCategory } from "@/lib/types";
 
 export async function fetchTransaction(
   transactionId: string
-): Promise<Transaction> {
+): Promise<TransactionWithCategory> {
   // Get param
   if (!transactionId) {
     console.error("Transaction ID not provided");
-    return {} as Transaction;
+    return {} as TransactionWithCategory;
   }
   if (isNaN(Number(transactionId))) {
     console.error("Invalid transaction ID");
-    return {} as Transaction;
+    return {} as TransactionWithCategory;
   }
 
   // Get transaction
@@ -29,10 +31,10 @@ export async function fetchTransaction(
 
   if (error) {
     console.error(error);
-    return {} as Transaction;
+    return {} as TransactionWithCategory;
   }
 
-  return data;
+  return data as TransactionWithCategory;
 }
 
 export async function update(id: number, formData: FormData) {
@@ -66,11 +68,12 @@ export async function update(id: number, formData: FormData) {
   const data = parsedData.data;
   const { error } = await updateTransaction(id, {
     ...data,
+    id: id,
     email,
     categoryId: Number(data.categoryId),
     amount: Number(data.amount),
     mode: data.mode as PaymentMode,
-  });
+  } as TransactionWithCategory);
 
   // CHECK: Check for Update transaction errors
   if (error) {
