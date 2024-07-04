@@ -191,11 +191,9 @@ export default function TransactionForm({
           render={({ field }) => {
             return (
               <FormItem>
-                <FormLabel>
-                  Payee / Payer
-                </FormLabel>
+                <FormLabel>Payee / Payer</FormLabel>
                 <FormControl>
-                  <Input placeholder="Payee (optional)" {...field} />
+                  <Input placeholder="Payee / Payer (optional)" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
