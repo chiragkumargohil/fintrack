@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import useSWR from "swr";
 import {
   Button,
   Tabs,
@@ -12,11 +11,11 @@ import {
 import Link from "next/link";
 import Overview from "./dashboard/overview";
 import { Plus } from "lucide-react";
-import { fetcher } from "@/lib/utils";
 import Loading from "./loading";
+import useLocalSWR from "@/hooks/useLocalSWR";
 
 export default function Dashboard() {
-  const { data, isLoading: loading, error } = useSWR("/api/overview", fetcher);
+  const { data, isLoading: loading, error } = useLocalSWR("/api/overview");
 
   if (loading) {
     return <Loading />;
@@ -56,7 +55,18 @@ export default function Dashboard() {
               </TabsTrigger>
             </TabsList>
             <TabsContent value="overview" className="space-y-4">
-              <Overview data={data} />
+              <Overview
+                data={
+                  data as {
+                    totalIncome: number;
+                    totalExpense: number;
+                    totalInvestment: number;
+                    physicalWallet: number;
+                    transactions: any[];
+                    transactionTrend: any[];
+                  }
+                }
+              />
             </TabsContent>
           </Tabs>
         </div>

@@ -31,11 +31,18 @@ import { DeleteTransactionModal } from "../../components/modals";
 import Loading from "../loading";
 import { PaymentMode } from "@prisma/client";
 import { toast } from "sonner";
+import useLocalSWR from "@/hooks/useLocalSWR";
 
 export default function TransactionList() {
-  const [loading, setLoading] = React.useState(true);
+  const {
+    data,
+    isLoading: loading,
+    mutate,
+  } = useLocalSWR("/api/transactions");
+
+  const { data: transactions } = data as any || {};
+
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [data, setData] = React.useState([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
@@ -44,7 +51,7 @@ export default function TransactionList() {
   const [rowSelection, setRowSelection] = React.useState({});
 
   const handleDelete = (id: string) => {
-    setData(data.filter((p: any) => p.id !== id));
+    mutate();
     toast.success("Transaction deleted successfully");
   };
 
@@ -126,7 +133,7 @@ export default function TransactionList() {
   ];
 
   const table = useReactTable({
-    data,
+    data: transactions || [],
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -144,24 +151,24 @@ export default function TransactionList() {
     },
   });
 
-  React.useEffect(() => {
-    const fetchTransactions = async () => {
-      const data = await fetch("/api/transactions", {
-        method: "GET",
-      });
+  // React.useEffect(() => {
+  //   const fetchTransactions = async () => {
+  //     const data = await fetch("/api/transactions", {
+  //       method: "GET",
+  //     });
 
-      if (!data.ok) {
-        setLoading(false);
-        return;
-      }
+  //     if (!data.ok) {
+  //       setLoading(false);
+  //       return;
+  //     }
 
-      const { data: transactions } = await data.json();
-      setData(transactions);
-      setLoading(false);
-    };
+  //     const { data: transactions } = await data.json();
+  //     setData(transactions);
+  //     setLoading(false);
+  //   };
 
-    fetchTransactions();
-  }, []);
+  //   fetchTransactions();
+  // }, []);
 
   if (loading) {
     return <Loading />;
