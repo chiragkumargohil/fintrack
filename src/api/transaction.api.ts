@@ -1,5 +1,4 @@
 import prisma from "@/lib/prisma";
-import { createClient } from "@/lib/superbase/client";
 import { TransactionWithCategory } from "@/lib/types";
 import {
   formatNumberInIndianStyle,
@@ -7,45 +6,8 @@ import {
   getMonthNameFromNumber,
 } from "@/lib/utils";
 import { Category, PaymentMode, Transaction } from "@prisma/client";
-const supabase = createClient();
 
-async function getTransactions(email: string): Promise<Transaction[]> {
-  try {
-    if (!email) return [];
-    const response = await supabase
-      .from("Transaction")
-      .select("*,Category(*),User(*)")
-      .order("date", { ascending: false });
-
-    if (response.error) {
-      console.error(response.error);
-      return [];
-    }
-    const transactions = response.data;
-
-    return transactions.map((transaction: any) => {
-      return {
-        id: transaction.id,
-        title: transaction.title,
-        amount: transaction.amount,
-        date: transaction.date,
-        mode: transaction.mode,
-        location: transaction.location,
-        payee: transaction.payee,
-        remarks: transaction.remarks,
-        createdAt: transaction.created_at,
-        category: transaction.Category.name,
-      } as any;
-    });
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
-}
-
-async function getTransaction(
-  id: number
-): Promise<{
+async function getTransaction(id: number): Promise<{
   data: TransactionWithCategory;
   error?: string;
 }> {
@@ -147,10 +109,7 @@ async function createTransaction(data: TransactionWithCategory) {
   }
 }
 
-async function updateTransaction(
-  id: number,
-  data: TransactionWithCategory
-) {
+async function updateTransaction(id: number, data: TransactionWithCategory) {
   try {
     const transaction = await prisma.transaction.update({
       where: {
@@ -414,7 +373,6 @@ const getCategories = async (): Promise<{
 };
 
 export {
-  getTransactions,
   getTransaction,
   createTransaction,
   updateTransaction,
