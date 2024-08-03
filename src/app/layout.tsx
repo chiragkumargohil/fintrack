@@ -8,8 +8,9 @@ import Navbar from "./navbar";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Money Tracker",
-  description: "Track your money easily",
+  title: "FinTrack - Your all-in-one financial tracker",
+  description:
+    "Your all-in-one financial tracker. Easily record expenses, monitor income, and track investments. Get real-time insights with our intuitive dashboard. Take control of your finances today!",
 };
 
 export default function RootLayout({
