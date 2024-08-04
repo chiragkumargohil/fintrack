@@ -317,6 +317,23 @@ async function getOverview(email: string) {
       `
     );
 
+    // 5: Gross savings
+    promises.push(
+      prisma.$queryRaw`
+        SELECT
+          SUM(CASE WHEN c.name = 'Income' THEN t.amount ELSE 0 END) -
+          SUM(CASE WHEN c.name NOT IN ('Income') THEN t.amount ELSE 0 END) AS saved
+        FROM
+          "Transaction" t
+        LEFT JOIN
+          "User" u ON t."userId" = u.id
+        INNER JOIN
+          "Category" c ON t."categoryId" = c.id
+        WHERE
+          u.email = ${email}
+      `
+    );
+
     const responses = await prisma.$transaction(promises);
 
     responses[3] = responses[3].map((transaction: any) => {
@@ -339,6 +356,9 @@ async function getOverview(email: string) {
     });
 
     return {
+      grossSavings: formatNumberInIndianStyle(
+        responses[5][0].saved > 0 ? responses[5][0].saved : 0
+      ),
       totalIncome: formatNumberInIndianStyle(responses[0]._sum.amount),
       totalExpense: formatNumberInIndianStyle(responses[2]._sum.amount),
       totalInvestment: formatNumberInIndianStyle(responses[1]._sum.amount),
@@ -364,6 +384,19 @@ const getCategories = async (): Promise<{
         name: category.name,
       };
     }) as Category[];
+
+    // Sort categories, Income first, investment second, rest alphabetically and Other at the end
+    data.sort((a, b) => {
+      if (a.name === "Income") return -1;
+      if (a.name === "Investment" && b.name !== "Income") return -1;
+      if (b.name === "Income") return 1;
+      if (b.name === "Investment" && a.name !== "Income") return 1;
+      if (a.name === "Other") return 1;
+      if (b.name === "Other") return -1;
+      if (a.name > b.name) return 1;
+      if (a.name < b.name) return -1;
+      return 0;
+    });
 
     return { data };
   } catch (error) {

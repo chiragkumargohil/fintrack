@@ -78,6 +78,11 @@ export default function TransactionForm({
         data.date = new Date(data.date).toISOString().split("T")[0];
       }
       data.categoryId = data.categoryId ? data.categoryId.toString() : "";
+      data.title = data.title || "";
+      data.amount = data.amount || 0;
+      data.location = data.location || "";
+      data.remarks = data.remarks || "";
+      data.payee = data.payee || "";
       form.reset(data);
     }
   }, [transaction]);

@@ -8,7 +8,7 @@ export default async function Navbar() {
   if (user) {
     return (
       <nav className="sticky bottom-0 w-full">
-        <NavbarComponent />
+        <NavbarComponent email={user.user?.email || undefined} />
       </nav>
     );
   } else {

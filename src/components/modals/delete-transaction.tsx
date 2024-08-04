@@ -8,12 +8,14 @@ import {
   AlertDialogFooter,
   AlertDialogCancel,
   AlertDialogAction,
+  Button,
 } from "@/components/ui";
 import { remove } from "../../app/transactions/actions";
 
 export function DeleteTransactionModal(props: {
   id: string;
   onDelete: () => void;
+  variant?: "link" | "destructive";
 }) {
   // Extract the id from the props
   const { id } = props || {};
@@ -23,7 +25,9 @@ export function DeleteTransactionModal(props: {
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger>Delete</AlertDialogTrigger>
+      <Button variant={props.variant} asChild>
+        <AlertDialogTrigger>Delete</AlertDialogTrigger>
+      </Button>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
@@ -39,7 +43,9 @@ export function DeleteTransactionModal(props: {
         >
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction type="submit">Delete</AlertDialogAction>
+            <Button variant="destructive" asChild>
+              <AlertDialogAction type="submit">Delete</AlertDialogAction>
+            </Button>
           </AlertDialogFooter>
         </form>
       </AlertDialogContent>

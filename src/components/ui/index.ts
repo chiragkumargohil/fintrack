@@ -85,3 +85,4 @@ export {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+export { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";

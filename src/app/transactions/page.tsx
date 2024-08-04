@@ -27,20 +27,16 @@ import {
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { PAYMENT_MODE } from "@/constants";
-import { DeleteTransactionModal } from "../../components/modals";
 import Loading from "../loading";
 import { PaymentMode } from "@prisma/client";
 import { toast } from "sonner";
 import useLocalSWR from "@/hooks/useLocalSWR";
+import TransactionAction from "@/components/transaction-action";
 
 export default function TransactionList() {
-  const {
-    data,
-    isLoading: loading,
-    mutate,
-  } = useLocalSWR("/api/transactions");
+  const { data, isLoading: loading, mutate } = useLocalSWR("/api/transactions");
 
-  const { data: transactions } = data as any || {};
+  const { data: transactions } = (data as any) || {};
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -71,6 +67,21 @@ export default function TransactionList() {
       ),
     },
     {
+      accessorKey: "amount",
+      header: () => <div className="text-right">Amount</div>,
+      cell: ({ row }) => {
+        const amount = parseFloat(row.getValue("amount"));
+
+        // Format the amount as a dollar amount
+        const formatted = new Intl.NumberFormat("en-IN", {
+          style: "currency",
+          currency: "INR",
+        }).format(amount);
+
+        return <div className="text-right font-medium">{formatted}</div>;
+      },
+    },
+    {
       accessorKey: "date",
       header: "Date",
       meta: {},
@@ -97,36 +108,14 @@ export default function TransactionList() {
       ),
     },
     {
-      accessorKey: "amount",
-      header: () => <div className="text-right">Amount</div>,
-      cell: ({ row }) => {
-        const amount = parseFloat(row.getValue("amount"));
-
-        // Format the amount as a dollar amount
-        const formatted = new Intl.NumberFormat("en-IN", {
-          style: "currency",
-          currency: "INR",
-        }).format(amount);
-
-        return <div className="text-right font-medium">{formatted}</div>;
-      },
-    },
-    {
       id: "actions",
+      accessorKey: "Actions",
       enableHiding: false,
       cell: ({ row }) => {
         const payment = row.original;
 
         return (
-          <div className="space-x-4">
-            <Button asChild>
-              <Link href={`/transactions/${payment.id}/update`}>Update</Link>
-            </Button>
-            <DeleteTransactionModal
-              id={payment.id}
-              onDelete={() => handleDelete(payment.id)}
-            />
-          </div>
+          <TransactionAction id={payment.id} handleDelete={handleDelete} />
         );
       },
     },

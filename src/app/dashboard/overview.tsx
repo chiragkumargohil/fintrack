@@ -44,7 +44,7 @@ export default function Overview({
     totalIncome: number;
     totalExpense: number;
     totalInvestment: number;
-    physicalWallet: number;
+    grossSavings: number;
     transactions: any[];
     transactionTrend: any[];
   };
@@ -52,6 +52,24 @@ export default function Overview({
   return (
     <>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <OverviewCard
+          title="Gross savings"
+          value={`₹${data.grossSavings || 0}`}
+          icon={
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              className="h-4 w-4 text-muted-foreground"
+            >
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+            </svg>
+          }
+        />
         <OverviewCard
           title="Total income"
           value={`₹${data.totalIncome || 0}`}
@@ -93,24 +111,6 @@ export default function Overview({
             >
               <rect width="20" height="14" x="2" y="5" rx="2" />
               <path d="M2 10h20" />
-            </svg>
-          }
-        />
-        <OverviewCard
-          title="Physical wallet"
-          value={"-" || `₹${data.physicalWallet || 0}`}
-          icon={
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              className="h-4 w-4 text-muted-foreground"
-            >
-              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
             </svg>
           }
         />
