@@ -61,7 +61,7 @@ export default function Dashboard() {
                     totalIncome: number;
                     totalExpense: number;
                     totalInvestment: number;
-                    physicalWallet: number;
+                    grossSavings: number;
                     transactions: any[];
                     transactionTrend: any[];
                   }

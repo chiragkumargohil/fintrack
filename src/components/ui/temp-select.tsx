@@ -35,9 +35,15 @@ const Select: React.FC<SelectProps> = ({
           }`}
           {...rest}
         >
-          <option value="" disabled>Select an option</option>
+          <option value="" disabled>
+            Select an option
+          </option>
           {options.map((option) => (
-            <option key={option.value} value={option.value} className="cursor-pointer">
+            <option
+              key={option.value}
+              value={option.value}
+              className="cursor-pointer"
+            >
               {option.label}
             </option>
           ))}

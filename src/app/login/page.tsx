@@ -13,7 +13,7 @@ export default function Login() {
     <div className="flex items-center justify-center h-screen px-2">
       <Card className="mx-auto max-w-md w-full">
         <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardTitle className="text-2xl">FinTrack | Login</CardTitle>
           <CardDescription>
             Enter your email below to login to your account
           </CardDescription>

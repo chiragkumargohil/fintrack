@@ -13,7 +13,7 @@ export default function Signup() {
     <div className="flex items-center justify-center h-screen px-2">
       <Card className="mx-auto max-w-md w-full">
         <CardHeader>
-          <CardTitle className="text-2xl">Sign up</CardTitle>
+          <CardTitle className="text-2xl">FinTrack | Signup</CardTitle>
           <CardDescription>
             Enter your details below to create an account
           </CardDescription>
