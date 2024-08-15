@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui";
 import Navbar from "./navbar";
+import { ThemeProvider } from "@/providers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,11 +22,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className}`}>
-        <main className="flex flex-col h-screen justify-between overflow-scroll">
-          <div className="flex-1">{children}</div>
-          <Navbar />
-        </main>
-        <Toaster position="top-right" />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <main className="flex flex-col h-screen justify-between overflow-scroll bg-background">
+            <div className="flex-1">{children}</div>
+            <Navbar />
+          </main>
+          <Toaster position="top-right" />
+        </ThemeProvider>
       </body>
     </html>
   );
