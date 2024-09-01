@@ -12,6 +12,10 @@ import {
   Button,
 } from "@/components/ui";
 
+/**
+ * Logout modal
+ * @returns
+ */
 export function LogoutModal() {
   return (
     <AlertDialog>

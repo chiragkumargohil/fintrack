@@ -1,8 +1,8 @@
-# Money Tracker Web App
+# FinTrack Web App
 
 ## Overview
 
-The Money Tracker Web App is a powerful and intuitive tool designed to help you manage your personal finances. Whether you're tracking daily expenses, managing investments, or monitoring your overall financial health, this app provides all the features you need to stay on top of your finances.
+The FinTrack Web App is a powerful and intuitive tool designed to help you manage your personal finances. Whether you're tracking daily expenses, managing investments, or monitoring your overall financial health, this app provides all the features you need to stay on top of your finances.
 
 ## Features
 
@@ -16,6 +16,7 @@ The Money Tracker Web App is a powerful and intuitive tool designed to help you 
 ## Technologies Used
 
 - **Full stack:**
+
   - Next.js with TypeScript (Server components)
   - Tailwind CSS for styling
   - Shadcn for components
@@ -40,3 +41,4 @@ The Money Tracker Web App is a powerful and intuitive tool designed to help you 
    ```bash
    git clone https://gitlab.com/chiragkumargohil/fintrack.git
    cd fintrack
+   ```
