@@ -12,6 +12,13 @@ import {
 } from "@/components/ui";
 import { remove } from "../../app/transactions/actions";
 
+/**
+ * Delete transaction modal
+ * @param props.id
+ * @param props.onDelete
+ * @param props.variant
+ * @returns
+ */
 export function DeleteTransactionModal(props: {
   id: string;
   onDelete: () => void;

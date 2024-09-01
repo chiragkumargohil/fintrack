@@ -18,6 +18,15 @@ interface StackedBarChartProps {
   yAxisLabel?: string;
 }
 
+/**
+ * StackedBarChart component
+ * @param param.data
+ * @param param.categories
+ * @param param.colors
+ * @param param.xAxisLabel
+ * @param param.yAxisLabel
+ * @returns
+ */
 export const StackedBarChart: React.FC<StackedBarChartProps> = ({
   data,
   categories,

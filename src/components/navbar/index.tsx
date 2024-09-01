@@ -26,6 +26,11 @@ const LINKS = [
   { label: "Add transaction", href: "/transactions/create" },
 ];
 
+/**
+ * Navbar component
+ * @param props.email
+ * @returns
+ */
 export function Navbar({ email }: NavbarProps) {
   // ----- Path ----- //
   const path = usePathname();

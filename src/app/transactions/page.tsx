@@ -46,7 +46,7 @@ export default function TransactionList() {
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
-  const handleDelete = (id: string) => {
+  const handleDelete = () => {
     mutate();
     toast.success("Transaction deleted successfully");
   };
@@ -113,7 +113,6 @@ export default function TransactionList() {
       enableHiding: false,
       cell: ({ row }) => {
         const payment = row.original;
-
         return (
           <TransactionAction id={payment.id} handleDelete={handleDelete} />
         );
@@ -139,25 +138,6 @@ export default function TransactionList() {
       rowSelection,
     },
   });
-
-  // React.useEffect(() => {
-  //   const fetchTransactions = async () => {
-  //     const data = await fetch("/api/transactions", {
-  //       method: "GET",
-  //     });
-
-  //     if (!data.ok) {
-  //       setLoading(false);
-  //       return;
-  //     }
-
-  //     const { data: transactions } = await data.json();
-  //     setData(transactions);
-  //     setLoading(false);
-  //   };
-
-  //   fetchTransactions();
-  // }, []);
 
   if (loading) {
     return <Loading />;
