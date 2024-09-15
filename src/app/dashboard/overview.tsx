@@ -38,7 +38,7 @@ const OverviewCard = ({
 };
 
 export default function Overview({
-  data,
+  data = {} as any,
 }: {
   data: {
     totalIncome: number;

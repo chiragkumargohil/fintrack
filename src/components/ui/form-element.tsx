@@ -41,7 +41,7 @@ function SelectElement({ field, options, ...props }: SelectElementProps) {
 
 type ElementProps = {
   elementType: "input" | "select" | "textarea";
-  label?: string;
+  label?: string | React.ReactNode;
   InputProps?: InputProps;
   SelectProps?: SelectProps;
   TextareaProps?: TextareaProps;

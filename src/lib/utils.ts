@@ -91,8 +91,9 @@ export function isStrongPassword(password: string): boolean {
   return re.test(password);
 }
 
-export const fetcher = (url: string, options?: RequestInit) =>
+export function fetcher(url: string, options?: RequestInit) {
   fetch(url, options).then((res) => res.json());
+}
 
 export function capitalizeFirstLetter(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
