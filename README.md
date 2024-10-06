@@ -9,7 +9,6 @@ The FinTrack Web App is a powerful and intuitive tool designed to help you manag
 - **User Authentication:** Secure login and registration using NextAuth.js.
 - **Expense and Income Tracking:** Easily add, update, and delete transactions.
 - **Categorization:** Organize your transactions by categories for better insights.
-- **Real-Time Updates:** All your data is synced in real-time using Firebase Firestore.
 - **Interactive Dashboard:** Visualize your financial data with charts and graphs.
 - **Responsive Design:** Accessible on any device, whether it's a desktop, tablet, or mobile phone.
 

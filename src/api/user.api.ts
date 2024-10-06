@@ -21,6 +21,14 @@ async function createUser(data: User) {
         provider: data.provider,
         providerId: data.providerId,
       },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        middleName: true,
+        lastName: true,
+        location: true,
+      },
     });
     return user;
   } catch (error) {
@@ -54,4 +62,22 @@ async function getUserByEmail(email: string): Promise<User | null> {
   }
 }
 
-export { createUser, getUserByEmail };
+async function updatePassword(email: string, password: string) {
+  try {
+    const hashedPassword = await hashPassword(password);
+
+    await prisma.user.update({
+      where: {
+        email,
+      },
+      data: {
+        password: hashedPassword,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    throw new Error(error as string);
+  }
+}
+
+export { createUser, getUserByEmail, updatePassword };

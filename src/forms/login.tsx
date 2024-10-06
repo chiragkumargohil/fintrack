@@ -4,7 +4,7 @@ import Link from "next/link";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginSchema, LoginSchemaType } from "@/lib/schema";
-import { Button, Form, FormElement } from "@/components/ui";
+import { Button, Form, FormElement, FormLabel } from "@/components/ui";
 import { toast } from "sonner";
 
 export default function LoginForm({
@@ -26,11 +26,24 @@ export default function LoginForm({
     formData.append("email", data.email);
     formData.append("password", data.password);
     const response = await action(formData);
+    if (!response) {
+      return toast.error("Something went wrong");
+    }
+
     if (response?.error) {
       return toast.error(response.error);
     }
     toast.success("Login successful");
   };
+
+  const PasswordLabel = (
+    <div className="flex items-end justify-between">
+      <FormLabel htmlFor="password">Password</FormLabel>
+      <Link href="/forgot-password" className="text-xs underline">
+        Forgot password?
+      </Link>
+    </div>
+  );
 
   return (
     <Form {...form}>
@@ -50,7 +63,7 @@ export default function LoginForm({
         />
         <FormElement
           elementType="input"
-          label="Password"
+          label={PasswordLabel}
           name="password"
           control={form.control}
           InputProps={{

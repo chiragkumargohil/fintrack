@@ -21,14 +21,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className}`}>
+      <body className={`${inter.className}`} style={{}}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >
-          <main className="flex flex-col h-screen justify-between overflow-scroll bg-background">
+          <main className="flex flex-col h-screen justify-between overflow-auto bg-background">
             <div className="flex-1">{children}</div>
             <Navbar />
           </main>

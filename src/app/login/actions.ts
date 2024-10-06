@@ -32,7 +32,7 @@ export async function login(formData: FormData) {
         case "CredentialsSignin":
           return { error: "Invalid credentials" };
         default:
-          return { error: "Something went wrong" };
+          return { error: "Invalid credentials" };
       }
     }
 
