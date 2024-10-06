@@ -10,7 +10,7 @@ import {
   updateTransaction,
 } from "@/api/transaction.api";
 import { auth } from "@/lib/auth/auth";
-import { Category, PaymentMode, Transaction } from "@prisma/client";
+import { Category, PaymentMode } from "@prisma/client";
 import { TransactionWithCategory } from "@/lib/types";
 
 export async function fetchTransaction(

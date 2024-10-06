@@ -2,7 +2,7 @@
   "extends": "next/core-web-vitals",
   "rules": {
     "no-undef": "error",
-    "no-unused-vars": "off",
+    "no-unused-vars": "warn",
     "react-hooks/exhaustive-deps": "off"
   }
 }

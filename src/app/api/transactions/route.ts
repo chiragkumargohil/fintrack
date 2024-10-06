@@ -19,9 +19,14 @@ export async function GET() {
       include: {
         category: true,
       },
-      orderBy: {
-        date: "desc",
-      },
+      orderBy: [
+        {
+          date: "desc",
+        },
+        {
+          id: "desc",
+        },
+      ],
     });
 
     const data = transactions.map((transaction: any) => {
