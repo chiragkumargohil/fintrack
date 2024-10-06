@@ -1,12 +1,14 @@
 import { PAYMENT_MODE_ENUM } from "@/constants";
 import { z } from "zod";
 
+// schema: login
 export const LoginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
 });
 export type LoginSchemaType = z.infer<typeof LoginSchema>;
 
+// schema: signup
 export const SignupSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(0).optional(),
@@ -15,6 +17,20 @@ export const SignupSchema = z.object({
 });
 export type SignupSchemaType = z.infer<typeof SignupSchema>;
 
+// schema: forgot-password
+export const ForgotPasswordSchema = z.object({
+  email: z.string().email(),
+});
+export type ForgotPasswordSchemaType = z.infer<typeof ForgotPasswordSchema>;
+
+// schema: reset-password
+export const ResetPasswordSchema = z.object({
+  password: z.string().min(6),
+  confirmPassword: z.string().min(6),
+});
+export type ResetPasswordSchemaType = z.infer<typeof ResetPasswordSchema>;
+
+// schema: transaction
 const PaymentModeEnum = z.enum([
   PAYMENT_MODE_ENUM.CASH,
   PAYMENT_MODE_ENUM.UPI,

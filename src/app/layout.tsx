@@ -28,7 +28,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <main className="flex flex-col h-screen justify-between overflow-scroll bg-background">
+          <main className="flex flex-col h-screen justify-between overflow-auto bg-background">
             <div className="flex-1">{children}</div>
             <Navbar />
           </main>

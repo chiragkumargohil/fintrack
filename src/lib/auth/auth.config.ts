@@ -9,9 +9,15 @@ export const authConfig = {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
 
+      const whitelist = new Set([
+        "/login",
+        "/signup",
+        "/forgot-password",
+        "/reset-password",
+      ]);
+
       const isOnMainPage =
-        nextUrl.pathname.startsWith("/") &&
-        !["/login", "/signup"].includes(nextUrl.pathname);
+        nextUrl.pathname.startsWith("/") && !whitelist.has(nextUrl.pathname);
       if (isOnMainPage) {
         if (isLoggedIn) return true;
         return false;

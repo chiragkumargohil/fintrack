@@ -7,6 +7,11 @@ import {
 } from "@/lib/utils";
 import { Category, PaymentMode, Transaction } from "@prisma/client";
 
+/**
+ * Get a transaction by id
+ * @param id
+ * @returns
+ */
 async function getTransaction(id: number): Promise<{
   data: TransactionWithCategory;
   error?: string;
@@ -66,6 +71,11 @@ async function getTransaction(id: number): Promise<{
   }
 }
 
+/**
+ * Create a transaction
+ * @param data
+ * @returns
+ */
 async function createTransaction(data: TransactionWithCategory) {
   try {
     const transaction = await prisma.transaction.create({
@@ -109,6 +119,12 @@ async function createTransaction(data: TransactionWithCategory) {
   }
 }
 
+/**
+ * Update a transaction
+ * @param id
+ * @param data
+ * @returns
+ */
 async function updateTransaction(id: number, data: TransactionWithCategory) {
   try {
     const transaction = await prisma.transaction.update({
@@ -149,6 +165,12 @@ async function updateTransaction(id: number, data: TransactionWithCategory) {
   }
 }
 
+/**
+ * Delete a transaction
+ * @param id
+ * @param email
+ * @returns
+ */
 async function deleteTransaction(id: number, email: string) {
   try {
     const transaction = await prisma.transaction.delete({
@@ -170,6 +192,11 @@ async function deleteTransaction(id: number, email: string) {
   }
 }
 
+/**
+ * Get overview of user's transactions
+ * @param email
+ * @returns
+ */
 async function getOverview(email: string) {
   try {
     const currentMonthStart = new Date(
@@ -266,9 +293,14 @@ async function getOverview(email: string) {
     promises.push(
       prisma.transaction.findMany({
         take: 5,
-        orderBy: {
-          date: "desc",
-        },
+        orderBy: [
+          {
+            date: "desc",
+          },
+          {
+            id: "desc",
+          },
+        ],
         where: {
           user: {
             email,
@@ -371,10 +403,14 @@ async function getOverview(email: string) {
   }
 }
 
-const getCategories = async (): Promise<{
+/**
+ * Get categories
+ * @returns
+ */
+async function getCategories(): Promise<{
   data: Category[];
   error?: string;
-}> => {
+}> {
   try {
     const categories = await prisma.category.findMany();
 
@@ -403,7 +439,7 @@ const getCategories = async (): Promise<{
     console.error(error);
     return { error: error as string, data: [] };
   }
-};
+}
 
 export {
   getTransaction,

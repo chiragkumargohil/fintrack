@@ -3,17 +3,7 @@
 import Link from "next/link";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import {
-  Button,
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Input,
-} from "@/components/ui";
+import { Button, Form, FormElement } from "@/components/ui";
 import { toast } from "sonner";
 import { SignupSchema, SignupSchemaType } from "@/lib/schema";
 
@@ -40,6 +30,10 @@ export default function SignupForm({
     formData.append("email", data.email);
     formData.append("password", data.password);
     const response = await action(formData);
+    if (!response) {
+      return toast.error("Something went wrong");
+    }
+    
     if (response?.error) {
       return toast.error(response.error);
     }
@@ -53,76 +47,51 @@ export default function SignupForm({
         className="space-y-4"
       >
         <div className="grid grid-cols-2 gap-4">
-          <FormField
-            rules={{ required: "First name is required" }}
-            control={form.control}
+          <FormElement
+            elementType="input"
+            label="First name"
             name="firstName"
-            render={({ field }) => {
-              return (
-                <FormItem>
-                  <FormLabel>First name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="First name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              );
+            control={form.control}
+            InputProps={{
+              placeholder: "First name",
             }}
           />
-          <FormField
-            control={form.control}
+          <FormElement
+            elementType="input"
+            label="Last name"
             name="lastName"
-            render={({ field }) => {
-              return (
-                <FormItem>
-                  <FormLabel>Last name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Last name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              );
+            control={form.control}
+            InputProps={{
+              placeholder: "Last name",
             }}
           />
         </div>
-        <FormField
-          rules={{ required: "Email is required" }}
-          control={form.control}
+        <FormElement
+          elementType="input"
+          label="Email"
           name="email"
-          render={({ field }) => {
-            return (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input placeholder="Email" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            );
-          }}
-        />
-        <FormField
           control={form.control}
-          name="password"
-          render={({ field }) => {
-            return (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input type="password" placeholder="Password" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            );
+          InputProps={{
+            type: "email",
+            placeholder: "Email",
           }}
+          rules={{ required: "Email is required" }}
+        />
+        <FormElement
+          elementType="input"
+          label="Password"
+          name="password"
+          control={form.control}
+          InputProps={{
+            type: "password",
+            placeholder: "Password",
+          }}
+          rules={{ required: "Password is required" }}
         />
         <div className="space-y-2">
           <Button type="submit" className="w-full">
             Sign up
           </Button>
-          {/* <Button variant="outline" className="w-full">
-            Sign up with Google
-          </Button> */}
         </div>
       </form>
       <div className="mt-4 text-center text-sm">

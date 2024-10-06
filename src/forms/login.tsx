@@ -4,16 +4,7 @@ import Link from "next/link";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginSchema, LoginSchemaType } from "@/lib/schema";
-import {
-  Button,
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Input,
-} from "@/components/ui";
+import { Button, Form, FormElement, FormLabel } from "@/components/ui";
 import { toast } from "sonner";
 
 export default function LoginForm({
@@ -35,11 +26,24 @@ export default function LoginForm({
     formData.append("email", data.email);
     formData.append("password", data.password);
     const response = await action(formData);
+    if (!response) {
+      return toast.error("Something went wrong");
+    }
+
     if (response?.error) {
       return toast.error(response.error);
     }
     toast.success("Login successful");
   };
+
+  const PasswordLabel = (
+    <div className="flex items-end justify-between">
+      <FormLabel htmlFor="password">Password</FormLabel>
+      <Link href="/forgot-password" className="text-xs underline">
+        Forgot password?
+      </Link>
+    </div>
+  );
 
   return (
     <Form {...form}>
@@ -47,35 +51,24 @@ export default function LoginForm({
         onSubmit={form.handleSubmit(handleSubmitForm)}
         className="space-y-4"
       >
-        <FormField
-          rules={{ required: "Email is required" }}
-          control={form.control}
+        <FormElement
+          elementType="input"
+          label="Email"
           name="email"
-          render={({ field }) => {
-            return (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input placeholder="Email" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            );
+          control={form.control}
+          InputProps={{
+            type: "email",
+            placeholder: "Email",
           }}
         />
-        <FormField
-          control={form.control}
+        <FormElement
+          elementType="input"
+          label={PasswordLabel}
           name="password"
-          render={({ field }) => {
-            return (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input type="password" placeholder="Password" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            );
+          control={form.control}
+          InputProps={{
+            type: "password",
+            placeholder: "Password",
           }}
         />
         <div className="space-y-2">
