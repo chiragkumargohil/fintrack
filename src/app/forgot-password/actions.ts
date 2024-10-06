@@ -42,8 +42,6 @@ export async function forgotPassword(formData: FormData) {
       subject: "Reset your password",
       htmlContent: `Click on the link to reset your password: ${url}`,
     });
-
-    return { message: "Email sent with reset link" };
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {

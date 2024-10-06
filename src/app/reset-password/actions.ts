@@ -56,8 +56,6 @@ export async function resetPassword(token: string, formData: FormData) {
 
     // UPDATE: Update password
     await updatePassword(user.email, parsedData.data.password);
-
-    return { message: "Password updated successfully" };
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {

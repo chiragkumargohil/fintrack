@@ -26,11 +26,8 @@ export default function LoginForm({
     formData.append("email", data.email);
     formData.append("password", data.password);
     const response = await action(formData);
-    if (!response) {
-      return toast.error("Something went wrong");
-    }
 
-    if (response?.error) {
+    if (response && response.error) {
       return toast.error(response.error);
     }
     toast.success("Login successful");

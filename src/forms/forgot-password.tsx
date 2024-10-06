@@ -26,14 +26,11 @@ export default function ForgotForm({
     const formData = new FormData();
     formData.append("email", data.email);
     const response = await action(formData);
-    if (!response) {
-      return toast.error("Something went wrong");
-    }
 
-    if (response?.error) {
+    if (response && response.error) {
       return toast.error(response.error);
     }
-    toast.success(response.message);
+    toast.success("Email sent with reset link");
     form.reset();
   };
 

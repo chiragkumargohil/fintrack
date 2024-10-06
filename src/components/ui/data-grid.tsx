@@ -27,7 +27,7 @@ export function DataGrid({
       </TableHeader>
       <TableBody>
         {rows.map((row, rowIndex) => (
-          <TableRow key={rowIndex} className="hover:bg-gray-50">
+          <TableRow key={rowIndex}>
             {columns.map((column, colIndex) => (
               <TableCell
                 key={colIndex}

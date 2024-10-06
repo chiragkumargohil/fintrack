@@ -28,14 +28,11 @@ export default function ResetPassword({
     formData.append("password", data.password);
     formData.append("confirmPassword", data.confirmPassword);
     const response = await action(formData);
-    if (!response) {
-      return toast.error("Something went wrong");
-    }
 
-    if (response?.error) {
+    if (response && response.error) {
       return toast.error(response.error);
     }
-    toast.success(response.message);
+    toast.success("Password updated successfully");
     form.reset();
   };
 
