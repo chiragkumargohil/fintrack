@@ -92,7 +92,7 @@ export function isStrongPassword(password: string): boolean {
 }
 
 export function fetcher(url: string, options?: RequestInit) {
-  fetch(url, options).then((res) => res.json());
+  return fetch(url, options).then((res) => res.json());
 }
 
 export function capitalizeFirstLetter(string: string) {
