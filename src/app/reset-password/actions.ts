@@ -73,6 +73,5 @@ export async function resetPassword(token: string, formData: FormData) {
     }
   }
 
-  // SUCCESS: Revalidate home page and redirect
   redirect("/login");
 }

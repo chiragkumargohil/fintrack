@@ -21,6 +21,14 @@ async function createUser(data: User) {
         provider: data.provider,
         providerId: data.providerId,
       },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        middleName: true,
+        lastName: true,
+        location: true,
+      },
     });
     return user;
   } catch (error) {
