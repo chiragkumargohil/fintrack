@@ -377,8 +377,8 @@ async function getOverview(email: string) {
     });
 
     responses[4] = new Array(12).fill(0).map((_, index) => {
-      const month = index + 1;
-      const data = responses[4].find((item: any) => item.month == month);
+      const month = index;
+      const data = responses[4].find((item: any) => item.month == month + 1);
       return {
         name: getMonthNameFromNumber(month),
         Investment: data?.investment || 0,
